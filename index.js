@@ -17,6 +17,30 @@ function subtractOne(e) {
   }
 }
 
+//TODO removing from brandSet
+function deleteProduct(e, id) {
+  const contentCart = document.querySelector(".content__Cart");
+  const product = e.target.parentElement.parentElement;
+  const wrapperManufacturer = product.parentElement.parentElement;
+  const manufacturerProducts = wrapperManufacturer.querySelector(".manufacturer__Products");
+  console.log(manufacturerProducts.parentElement);
+  console.log(manufacturerProducts.children.length);
+
+  if (manufacturerProducts.children.length === 1) {
+    product.parentElement.parentElement.remove();
+  }
+
+  cartProducts = cartProducts.filter((product) => product.id != id);
+  e.target.parentElement.parentElement.remove();
+
+  const brandName = wrapperManufacturer.querySelector(".manufacturer__Name").innerText;
+  brandSet.delete(`${brandName}`);
+  console.log(brandSet);
+  console.log(cartProducts, id);
+  console.log(productSet);
+  productSet.delete(`${id}`);
+}
+
 window.addEventListener("load", async (e) => {
   const response = await fetch("https://dummyjson.com/products");
   const jsonData = await response.json();
