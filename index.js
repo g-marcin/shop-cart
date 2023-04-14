@@ -117,14 +117,14 @@ function appendProduct(fetchedProduct) {
     addButton.onclick = () => {
       const id = Number(addButton.parentElement.querySelector(".product__Id").innerText);
       const count = Number(addButton.parentElement.querySelector(".counter__Display").value);
-      const name = fetchedProductsMap.get(id).name;
+      const title = fetchedProductsMap.get(id).title;
       const brand = fetchedProductsMap.get(id).brand;
       const price = fetchedProductsMap.get(id).price;
       console.log({ id: id, price: price, name: name, brand: brand, count: count });
       if (count !== 0) {
         const findId = cartProducts.filter((product) => product.id === id);
         if (findId.length === 0) {
-          cartProducts.push({ id: id, price: price, name: name, brand: brand, count: count });
+          cartProducts.push({ id: id, price: price, title: title, brand: brand, count: count });
         } else {
           cartProducts[cartProducts.indexOf(findId[0])].count += count;
         }
@@ -143,13 +143,13 @@ function appendManufacturer(cartProducts) {
     return;
   }
   const cartContent = document.querySelector(".content__Cart");
-  displayedCartProducts = cartProducts.map(({ id, name, brand, price, count }) => {
+  displayedCartProducts = cartProducts.map(({ id, title, brand, price, count }) => {
     const manufacturerBox = document.createElement("div");
     manufacturerBox.className = `wrapper__Manufacturer`;
 
     manufacturerBox.innerHTML = ` 
       <div class="manufacturer__Header">
-        <input type="checkbox" name="delete_Choice" />
+        <input type="checkbox" />
         <div class="manufacturer__Name">${brand}</div>
       </div>
       <div class="manufacturer__Products ${brand}">
@@ -163,5 +163,46 @@ function appendManufacturer(cartProducts) {
       cartContent.appendChild(manufacturerBox);
     }
     brandSet.add(brand);
+  });
+}
+
+function appendProductToManufacturer(cartProducts) {
+  const renderedManufacturerProducts = cartProducts.map(({ id, title, price, count, brand }) => {
+    const manufacturerBox = document.querySelector(`.${brand}`);
+    const manufacturerProduct = document.createElement("div");
+    manufacturerProduct.className = "wrapper__Product__Cart";
+    manufacturerProduct.id = `${id}`;
+    manufacturerProduct.innerHTML = `
+    <div class="product__Cart__Data"  id="${id}">
+      <label for=""> <input type="checkbox" class="product__Name" />${title}</label>
+      <div>${price}</div>
+      <div class="product__Counter" style="display: flex; align-items: center">
+      <input
+        type="number"
+        disabled
+        class="counter__Display"
+       
+        value=${count}
+        style="width: 35px"
+      />
+      <div style="display: flex; flex-direction: column">
+        <button onclick="addOne(event)">+</button>
+        <button onclick="subtractOne(event)">-</button>
+      </div>
+    </div>
+    </div>
+    <button class="button__Delete" onclick="deleteProduct(event, ${id},  )"><i class="fa-solid fa-trash fa-lg"></i></button>
+  `;
+    if (!productSet.has(id)) {
+      manufacturerBox.appendChild(manufacturerProduct);
+    } else {
+      let oldProduct = document.getElementById(`${id}`);
+      console.log(oldProduct);
+
+      oldProduct.remove();
+
+      manufacturerBox.appendChild(manufacturerProduct);
+    }
+    productSet.add(id);
   });
 }
