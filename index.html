@@ -29,7 +29,61 @@
         <i class="fa-solid fa-bars fa-xl"></i>
       </button>
     </header>
-    <main></main>
+    <main>
+      <div class="wrapper__Main">
+        <div class="wrapper__Shop">
+          <div class="header__Shop"><i class="fa-solid fa-shop"></i> THE SHOP</div>
+          <div class="content__Shop">
+            <div class="wrapper__Product">
+              product
+              <div class="product__Counter" style="display: flex; align-items: center">
+                <input type="number" disabled class="counter__Display" value="0" style="width: 35px" />
+                <div style="display: flex; flex-direction: column">
+                  <button onclick="addOne(event)">+</button>
+                  <button onclick="subtractOne(event)">-</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="wrapper__Cart">
+          <div class="header__Cart"><i class="fa-solid fa-cart-shopping"></i> THE CART</div>
+          <div class="content__Cart">
+            <div class="wrapper__Manufacturer">
+              <div class="manufacturer__Header">
+                <input type="radio" name="delete_Choice" />
+                <div>Manufacturer</div>
+              </div>
+              <div class="manufacturer__Products">
+                <div class="wrapper__Product__Cart">
+                  <div class="product__Cart__Data">
+                    <label for=""> <input type="radio" name="delete_Choice" />Product name</label>
+                    <div>10$</div>
+                    <div class="product__Count" style="display: flex; align-items: center">
+                      10
+                      <div style="display: flex; flex-direction: column">
+                        <button>+</button>
+                        <button>-</button>
+                      </div>
+                    </div>
+                  </div>
+                  <button class="button__Delete" onclick="deleteProduct(event)">
+                    <i class="fa-solid fa-trash fa-lg"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="manufacturer__Total">Total:<span id="total__Manufacturer">100</span>$</div>
+            </div>
+          </div>
+          <div class="wrapper__Grand__Total">
+            <label for="">
+              Grand Total:
+              <input disabled type="number" value="0" title="grand Total" style="width: 50px" />
+            </label>
+          </div>
+        </div>
+      </div>
+    </main>
     <footer class="footer">
       <a class="wrapper__Footer__Item Inter" href="#" aria-label="link to contacts" title="Contact us" style="opacity: 0.8">Contact us</a>
       <a
