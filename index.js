@@ -50,12 +50,35 @@ function appendProduct(fetchedProduct) {
     product.appendChild(price);
   }
 
+  function counter() {
+    return ` <div class="product__Counter" style="display: flex; align-items: center">
+    <input
+      type="number"
+      disabled
+      class="counter__Display"
+      value="0"
+      style="width: 35px; margin:5px"
+    />
+    <div style="display: flex; flex-direction: column">
+      <button onclick="addOne(event)">+</button>
+      <button onclick="subtractOne(event)">-</button>
+    </div>`;
+  }
+
+  function displayCounter() {
+    const count = document.createElement("div");
+    count.className = "product__Count";
+    count.innerHTML = `${counter()}`;
+    product.appendChild(count);
+  }
+
   displayId();
   displayThumbnail();
   displayTitle();
   displayManufacturer();
   displayDescription();
   displayPrice();
+  displayCounter();
 
   function addToCart() {
     const addButton = document.createElement("button");
@@ -101,3 +124,17 @@ window.addEventListener("load", async (e) => {
     appendProduct(fetchedProduct);
   });
 });
+
+//utils
+function addOne(e) {
+  const counterDisplay = e.target.parentElement.parentElement.querySelector(".counter__Display");
+  if (counterDisplay.value < 12) {
+    counterDisplay.value++;
+  }
+}
+function subtractOne(e) {
+  const counterDisplay = e.target.parentElement.parentElement.querySelector(".counter__Display");
+  if (counterDisplay.value > 0) {
+    counterDisplay.value--;
+  }
+}
