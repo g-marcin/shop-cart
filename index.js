@@ -1,4 +1,33 @@
+const fetchedProductsMap = new Map();
 let cartProducts = [];
+// TODO change [] to Map()
+const brandSet = new Set();
+const productSet = new Set();
+
+function addOne(e) {
+  const counterDisplay = e.target.parentElement.parentElement.querySelector(".counter__Display");
+  if (counterDisplay.value < 12) {
+    counterDisplay.value++;
+  }
+}
+function subtractOne(e) {
+  const counterDisplay = e.target.parentElement.parentElement.querySelector(".counter__Display");
+  if (counterDisplay.value > 0) {
+    counterDisplay.value--;
+  }
+}
+
+window.addEventListener("load", async (e) => {
+  const response = await fetch("https://dummyjson.com/products");
+  const jsonData = await response.json();
+  console.log(jsonData);
+  const { products } = jsonData;
+  products.map((fetchedProduct) => {
+    appendProduct(fetchedProduct);
+    fetchedProductsMap.set(fetchedProduct.id, fetchedProduct);
+  });
+  console.log(fetchedProductsMap);
+});
 
 function appendProduct(fetchedProduct) {
   const shopContent = document.querySelector(".content__Shop");
@@ -87,11 +116,11 @@ function appendProduct(fetchedProduct) {
     addButton.style = "border:3px solid black; align-self:start; padding:5px";
     addButton.onclick = () => {
       const id = Number(addButton.parentElement.querySelector(".product__Id").innerText);
-      const name = addButton.parentElement.querySelector(".product__Title").innerText;
-      const brand = addButton.parentElement.querySelector(".product__Brand").innerText;
       const count = Number(addButton.parentElement.querySelector(".counter__Display").value);
-      const price = Number(addButton.parentElement.querySelector(".product__Price").innerText);
-
+      const name = fetchedProductsMap.get(id).name;
+      const brand = fetchedProductsMap.get(id).brand;
+      const price = fetchedProductsMap.get(id).price;
+      console.log({ id: id, price: price, name: name, brand: brand, count: count });
       if (count !== 0) {
         const findId = cartProducts.filter((product) => product.id === id);
         if (findId.length === 0) {
@@ -103,38 +132,36 @@ function appendProduct(fetchedProduct) {
         appendProductToManufacturer(cartProducts);
       }
       addButton.parentElement.querySelector(".counter__Display").value = "0";
-      console.log(cartProducts);
     };
-
     product.appendChild(addButton);
   }
   addToCart();
-
-  //TODO counter
-
-  //TODO addToCart button
 }
 
-window.addEventListener("load", async (e) => {
-  const response = await fetch("https://dummyjson.com/products");
-  const jsonData = await response.json();
-  console.log(jsonData);
-  const { products } = jsonData;
-  products.map((fetchedProduct) => {
-    appendProduct(fetchedProduct);
+function appendManufacturer(cartProducts) {
+  if (!cartProducts) {
+    return;
+  }
+  const cartContent = document.querySelector(".content__Cart");
+  displayedCartProducts = cartProducts.map(({ id, name, brand, price, count }) => {
+    const manufacturerBox = document.createElement("div");
+    manufacturerBox.className = `wrapper__Manufacturer`;
+
+    manufacturerBox.innerHTML = ` 
+      <div class="manufacturer__Header">
+        <input type="checkbox" name="delete_Choice" />
+        <div class="manufacturer__Name">${brand}</div>
+      </div>
+      <div class="manufacturer__Products ${brand}">
+     
+      </div>
+      <div class="manufacturer__Total" style="display:flex">
+        Total:<input id="total__Manufacturer" value="100" style="width:50px"/>$
+      </div>
+    `;
+    if (!brandSet.has(brand)) {
+      cartContent.appendChild(manufacturerBox);
+    }
+    brandSet.add(brand);
   });
-});
-
-//utils
-function addOne(e) {
-  const counterDisplay = e.target.parentElement.parentElement.querySelector(".counter__Display");
-  if (counterDisplay.value < 12) {
-    counterDisplay.value++;
-  }
-}
-function subtractOne(e) {
-  const counterDisplay = e.target.parentElement.parentElement.querySelector(".counter__Display");
-  if (counterDisplay.value > 0) {
-    counterDisplay.value--;
-  }
 }
