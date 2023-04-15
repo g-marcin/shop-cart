@@ -17,40 +17,38 @@ function subtractOne(e) {
   }
 }
 
+function test(e) {}
+
 //TODO removing from brandSet
 function deleteProduct(e, id) {
   const contentCart = document.querySelector(".content__Cart");
   const product = e.target.parentElement.parentElement;
-  const wrapperManufacturer = product.parentElement.parentElement;
+  const wrapperManufacturer = document.querySelector(`.wrapper__Manufacturer__${id}`);
   const manufacturerProducts = wrapperManufacturer.querySelector(".manufacturer__Products");
-  console.log(manufacturerProducts.parentElement);
-  console.log(manufacturerProducts.children.length);
 
   if (manufacturerProducts.children.length === 1) {
-    product.parentElement.parentElement.remove();
+    wrapperManufacturer.remove();
   }
-
-  cartProducts = cartProducts.filter((product) => product.id != id);
-  e.target.parentElement.parentElement.remove();
 
   const brandName = wrapperManufacturer.querySelector(".manufacturer__Name").innerText;
   brandSet.delete(`${brandName}`);
+  productSet.delete(id);
+  cartProducts = cartProducts.filter((product) => product.id !== id);
+
+  console.log(cartProducts);
   console.log(brandSet);
-  console.log(cartProducts, id);
   console.log(productSet);
-  productSet.delete(`${id}`);
 }
 
 window.addEventListener("load", async (e) => {
   const response = await fetch("https://dummyjson.com/products");
   const jsonData = await response.json();
-  console.log(jsonData);
+
   const { products } = jsonData;
   products.map((fetchedProduct) => {
     appendProduct(fetchedProduct);
     fetchedProductsMap.set(fetchedProduct.id, fetchedProduct);
   });
-  console.log(fetchedProductsMap);
 });
 
 function appendProduct(fetchedProduct) {
@@ -142,9 +140,8 @@ function appendProduct(fetchedProduct) {
       const id = Number(addButton.parentElement.querySelector(".product__Id").innerText);
       const count = Number(addButton.parentElement.querySelector(".counter__Display").value);
       const title = fetchedProductsMap.get(id).title;
-      const brand = fetchedProductsMap.get(id).brand;
+      const brand = fetchedProductsMap.get(id).brand.replace(/\s/g, "");
       const price = fetchedProductsMap.get(id).price;
-      console.log({ id: id, price: price, name: name, brand: brand, count: count });
       if (count !== 0) {
         const findId = cartProducts.filter((product) => product.id === id);
         if (findId.length === 0) {
@@ -169,7 +166,7 @@ function appendManufacturer(cartProducts) {
   const cartContent = document.querySelector(".content__Cart");
   displayedCartProducts = cartProducts.map(({ id, title, brand, price, count }) => {
     const manufacturerBox = document.createElement("div");
-    manufacturerBox.className = `wrapper__Manufacturer`;
+    manufacturerBox.className = `wrapper__Manufacturer__${id}`;
 
     manufacturerBox.innerHTML = ` 
       <div class="manufacturer__Header">
@@ -214,19 +211,17 @@ function appendProductToManufacturer(cartProducts) {
         <button onclick="subtractOne(event)">-</button>
       </div>
     </div>
-    </div>
     <button class="button__Delete" onclick="deleteProduct(event, ${id},  )"><i class="fa-solid fa-trash fa-lg"></i></button>
+    </div>
   `;
     if (!productSet.has(id)) {
       manufacturerBox.appendChild(manufacturerProduct);
+      productSet.add(id);
     } else {
       let oldProduct = document.getElementById(`${id}`);
-      console.log(oldProduct);
 
       oldProduct.remove();
-
       manufacturerBox.appendChild(manufacturerProduct);
     }
-    productSet.add(id);
   });
 }
