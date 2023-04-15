@@ -17,22 +17,33 @@ function subtractOne(e) {
   }
 }
 
+function trimWhiteSpace(string) {
+  return string.replace(/\s/g, "");
+}
+
+function trimSpecialCharacters(string) {
+  return string.replace(/^a-zA-Z0-9 ]/g, "").replace(/[&-']/g, "");
+}
+
 function test(e) {}
 
-//TODO removing from brandSet
 function deleteProduct(e, id) {
-  const contentCart = document.querySelector(".content__Cart");
-  const product = e.target.parentElement.parentElement;
-  const wrapperManufacturer = document.querySelector(`.wrapper__Manufacturer__${id}`);
-  const manufacturerProducts = wrapperManufacturer.querySelector(".manufacturer__Products");
+  const brandName = trimSpecialCharacters(trimWhiteSpace(fetchedProductsMap.get(id).brand));
+  const wrapperManufacturer = document.querySelector(`.wrapper__Manufacturer__${brandName}`);
+  const manufacturerProducts = wrapperManufacturer.querySelector(`.${brandName}`);
+  const product = document.querySelector(`.wrapper__Product__Cart__${id}`);
+  console.log(brandName);
 
-  if (manufacturerProducts.children.length === 1) {
+  if (product !== null) {
+    product.remove();
+  }
+  console.log(manufacturerProducts.childNodes.length);
+  if (manufacturerProducts.childNodes.length === 1) {
     wrapperManufacturer.remove();
   }
 
-  const brandName = wrapperManufacturer.querySelector(".manufacturer__Name").innerText;
-  brandSet.delete(`${brandName}`);
   productSet.delete(id);
+  brandSet.delete(`${brandName}`);
   cartProducts = cartProducts.filter((product) => product.id !== id);
 
   console.log(cartProducts);
@@ -46,15 +57,15 @@ window.addEventListener("load", async (e) => {
 
   const { products } = jsonData;
   products.map((fetchedProduct) => {
-    appendProduct(fetchedProduct);
+    appendProduct(fetchedProduct, fetchedProduct.id);
     fetchedProductsMap.set(fetchedProduct.id, fetchedProduct);
   });
 });
 
-function appendProduct(fetchedProduct) {
+function appendProduct(fetchedProduct, id) {
   const shopContent = document.querySelector(".content__Shop");
   const product = document.createElement("div");
-  product.className = "wrapper__Product";
+  product.className = `wrapper__Product`;
   shopContent.appendChild(product);
 
   function displayId() {
@@ -140,7 +151,7 @@ function appendProduct(fetchedProduct) {
       const id = Number(addButton.parentElement.querySelector(".product__Id").innerText);
       const count = Number(addButton.parentElement.querySelector(".counter__Display").value);
       const title = fetchedProductsMap.get(id).title;
-      const brand = fetchedProductsMap.get(id).brand.replace(/\s/g, "");
+      const brand = trimSpecialCharacters(trimWhiteSpace(fetchedProductsMap.get(id).brand));
       const price = fetchedProductsMap.get(id).price;
       if (count !== 0) {
         const findId = cartProducts.filter((product) => product.id === id);
@@ -153,6 +164,7 @@ function appendProduct(fetchedProduct) {
         appendProductToManufacturer(cartProducts);
       }
       addButton.parentElement.querySelector(".counter__Display").value = "0";
+      console.log(cartProducts);
     };
     product.appendChild(addButton);
   }
@@ -166,14 +178,14 @@ function appendManufacturer(cartProducts) {
   const cartContent = document.querySelector(".content__Cart");
   displayedCartProducts = cartProducts.map(({ id, title, brand, price, count }) => {
     const manufacturerBox = document.createElement("div");
-    manufacturerBox.className = `wrapper__Manufacturer__${id}`;
+    manufacturerBox.className = `wrapper__Manufacturer__${brand}`;
 
     manufacturerBox.innerHTML = ` 
       <div class="manufacturer__Header">
         <input type="checkbox" />
-        <div class="manufacturer__Name">${brand}</div>
+        <div class="manufacturer__Name">${fetchedProductsMap.get(id).brand}</div>
       </div>
-      <div class="manufacturer__Products ${brand}">
+      <div class="manufacturer__Products__${brand} ${brand}">
      
       </div>
       <div class="manufacturer__Total" style="display:flex">
@@ -191,10 +203,10 @@ function appendProductToManufacturer(cartProducts) {
   const renderedManufacturerProducts = cartProducts.map(({ id, title, price, count, brand }) => {
     const manufacturerBox = document.querySelector(`.${brand}`);
     const manufacturerProduct = document.createElement("div");
-    manufacturerProduct.className = "wrapper__Product__Cart";
+    manufacturerProduct.className = `wrapper__Product__Cart__${id}`;
     manufacturerProduct.id = `${id}`;
     manufacturerProduct.innerHTML = `
-    <div class="product__Cart__Data"  id="${id}">
+    <div class=product__Cart__Data >
       <label for=""> <input type="checkbox" class="product__Name" />${title}</label>
       <div>${price}</div>
       <div class="product__Counter" style="display: flex; align-items: center">
