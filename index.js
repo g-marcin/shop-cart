@@ -1,8 +1,8 @@
 const fetchedProductsMap = new Map();
 let cartProducts = [];
-// TODO change [] to Map()
 const brandSet = new Set();
 const productSet = new Set();
+const brandTotalMap = new Map();
 
 function addOne(e) {
   const counterDisplay = e.target.parentElement.parentElement.querySelector(".counter__Display");
@@ -23,6 +23,43 @@ function trimWhiteSpace(string) {
 
 function trimSpecialCharacters(string) {
   return string.replace(/^a-zA-Z0-9 ]/g, "").replace(/[&-']/g, "");
+}
+
+function getTotalByBrand(brand) {
+  const requestedBrand = cartProducts.filter((product) => product.brand === brand);
+
+  const initialValue = 0;
+  const brandTotal = requestedBrand.reduce((accumulator, product) => accumulator + product.price * product.count, initialValue);
+
+  console.log(brandTotal);
+  brandTotalMap.set(brand, brandTotal);
+  return brandTotal;
+}
+
+function updateBrandTotal(brand, price, count) {
+  const currentValue = brandTotalMap.get(brand);
+  const newBrandTotal = currentValue + price * count;
+  brandTotalMap.set(brand, newBrandTotal);
+
+  if (brandSet.has(brand)) {
+    const brandCountDisplay = document.querySelector(`.total__Manufacturer__${brand}`);
+
+    if (brandCountDisplay) {
+      brandCountDisplay.remove();
+    }
+    const wrapperManufacturerTotal = document.querySelector(`.wrapper__Total__${brand}`);
+
+    // const newTotalDisplay = document.createElement("input");
+    // newTotalDisplay.className = `total__Manufacturer__${brand}`;
+    // newTotalDisplay.value = newBrandTotal;
+    // newTotalDisplay.style = "width:50px;";
+    // wrapperManufacturerTotal.appendChild(newTotalDisplay);
+    wrapperManufacturerTotal.innerHTML = ` Total:<input class="total__Manufacturer__${brand} " value=${newBrandTotal} style="width:50px"/>`;
+  }
+
+  // <div class="manufacturer__Total__${brand}" style="display:flex">
+  //       Total:<input class=`total__Manufacturer__${brand}` value=${brandTotal} style="width:50px"/>$
+  //     </div>
 }
 
 function test(e) {}
@@ -152,7 +189,7 @@ function appendProduct(fetchedProduct, id) {
       const count = Number(addButton.parentElement.querySelector(".counter__Display").value);
       const title = fetchedProductsMap.get(id).title;
       const brand = trimSpecialCharacters(trimWhiteSpace(fetchedProductsMap.get(id).brand));
-      const price = fetchedProductsMap.get(id).price;
+      const price = Number(fetchedProductsMap.get(id).price);
       if (count !== 0) {
         const findId = cartProducts.filter((product) => product.id === id);
         if (findId.length === 0) {
@@ -160,6 +197,7 @@ function appendProduct(fetchedProduct, id) {
         } else {
           cartProducts[cartProducts.indexOf(findId[0])].count += count;
         }
+        updateBrandTotal(brand, price, count);
         appendManufacturer(cartProducts);
         appendProductToManufacturer(cartProducts);
       }
@@ -179,6 +217,8 @@ function appendManufacturer(cartProducts) {
   displayedCartProducts = cartProducts.map(({ id, title, brand, price, count }) => {
     const manufacturerBox = document.createElement("div");
     manufacturerBox.className = `wrapper__Manufacturer__${brand}`;
+    getTotalByBrand(brand);
+    const brandTotal = brandTotalMap.get(brand);
 
     manufacturerBox.innerHTML = ` 
       <div class="manufacturer__Header">
@@ -188,8 +228,8 @@ function appendManufacturer(cartProducts) {
       <div class="manufacturer__Products__${brand} ${brand}">
      
       </div>
-      <div class="manufacturer__Total" style="display:flex">
-        Total:<input id="total__Manufacturer" value="100" style="width:50px"/>$
+      <div class="manufacturer__Total__${brand} manufacturer__Total" style="display:flex">
+        Total:<input disabled class="total__Manufacturer__${brand}" value=${brandTotal} style="width:50px"/>$
       </div>
     `;
     if (!brandSet.has(brand)) {
