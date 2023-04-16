@@ -190,9 +190,9 @@ main {
 
 .wrapper__Product {
   border: 1px solid black;
-  min-width: 250px;
+  max-width: 300px;
   padding: 25px;
-  min-height: 200px;
+  max-height: fit-content;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
@@ -253,6 +253,9 @@ main {
   display: flex;
   justify-content: center;
   padding: 10px;
+}
+
+.wrapper__Grand__Total {
 }
 
 .footer {

@@ -42,6 +42,7 @@ function addOne(e, id) {
     });
     cartProducts = [...newCartProducts];
     console.log(cartProducts);
+    updateGrandTotal();
   }
 }
 function subtractOne(e, id) {
@@ -84,6 +85,7 @@ function subtractOne(e, id) {
     });
     cartProducts = [...newCartProducts];
     console.log(cartProducts);
+    updateGrandTotal();
   }
 }
 
@@ -96,12 +98,9 @@ function trimSpecialCharacters(string) {
 }
 
 function getBrandTotal(brand) {
-  const requestedBrand = cartProducts.filter((product) => product.brand === brand);
-
-  const initialValue = 0;
-  const brandTotal = requestedBrand.reduce((accumulator, product) => accumulator + product.price * product.count, initialValue);
-
-  console.log(brandTotal);
+  const requestedBrandProducts = cartProducts.filter((product) => product.brand === brand);
+  const brandTotal = requestedBrandProducts.reduce((accumulator, product) => accumulator + product.price * product.count, 0);
+  brandTotalMap.delete(brand);
   brandTotalMap.set(brand, brandTotal);
   return brandTotal;
 }
@@ -128,9 +127,32 @@ function updateBrandTotal(brand, price, count) {
   }
 }
 
-function test(e) {}
+function updateGrandTotal() {
+  const wrapperCart = document.querySelector(".wrapper__Cart");
+  const arr = Array.from(brandTotalMap, ([key, value]) => ({
+    value,
+  }));
+  const grandTotalValue = arr.reduce((acc, val) => acc + val.value, 0);
+  console.log(grandTotalValue);
+  // brandTotalMap.size > 1
+  //   ? ((grandTotalValue = brandTotalMap
+  //       .values()
+  //       .split(",")
+  //       .reduce((acc, val) => acc + val)),
+  //     0)
+  //   : (grandTotalValue = [...brandTotalMap.values()]);
 
-//TODO update state on delete product
+  const wrapperGrandTotal = document.querySelector(".wrapper__Grand__Total");
+  const grandTotal = document.querySelector(".grand__Total");
+  const newWrapperGrandTotal = document.createElement("div");
+  newWrapperGrandTotal.className = "wrapper__Grand__Total";
+  newWrapperGrandTotal.innerHTML = `<label for="">
+           Grand Total:
+            <input class="grand__Total" disabled type="number" value=${grandTotalValue}  style="width: 50px" />
+           </label>`;
+  wrapperGrandTotal.remove();
+  wrapperCart.appendChild(newWrapperGrandTotal);
+}
 
 function deleteProduct(e, id) {
   const brand = trimSpecialCharacters(trimWhiteSpace(fetchedProductsMap.get(id).brand));
@@ -141,25 +163,23 @@ function deleteProduct(e, id) {
   const counterDisplay = product.querySelector(`.counter__Display`);
   const manufacturerTotal = document.querySelector(`.total__Manufacturer__${brand}`);
 
-  if (product !== null) {
+  if (productSet.has(id)) {
     product.remove();
+    productSet.delete(id);
     const newCartProducts = cartProducts.filter((product) => {
-      if (!id) return;
       product.id !== Number(id);
     });
     cartProducts = [...newCartProducts];
     if (manufacturerProducts.childNodes.length == 1) {
       wrapperManufacturer.remove();
-      brandTotalMap.set(brand, 0);
+      brandSet.delete(brand);
     }
   }
   console.log(manufacturerProducts.childNodes.length);
 
-  brandSet.delete(`${brand}`);
-  productSet.delete(id);
   let currentBrandTotal = brandTotalMap.get(brand);
-  currentBrandTotal = currentBrandTotal - counterDisplay.value * price;
-  brandTotalMap.set(brand, currentBrandTotal);
+  const newBrandTotal = currentBrandTotal - Number(counterDisplay.value) * price;
+  brandTotalMap.set(brand, newBrandTotal);
 
   function newTotalDisplay(newBrandTotal) {
     const wrapperManufacturerTotal = document.querySelector(`.manufacturer__Total__${brand}`);
@@ -173,8 +193,9 @@ function deleteProduct(e, id) {
     }
   }
   manufacturerTotal.remove();
-  newTotalDisplay(currentBrandTotal);
-
+  newTotalDisplay(newBrandTotal);
+  updateGrandTotal();
+  console.log(brandTotalMap);
   console.log(cartProducts);
 }
 
@@ -184,12 +205,12 @@ window.addEventListener("load", async (e) => {
 
   const { products } = jsonData;
   products.map((fetchedProduct) => {
-    appendProduct(fetchedProduct, fetchedProduct.id);
+    appendFetchedProduct(fetchedProduct, fetchedProduct.id);
     fetchedProductsMap.set(fetchedProduct.id, fetchedProduct);
   });
 });
 
-function appendProduct(fetchedProduct, id) {
+function appendFetchedProduct(fetchedProduct, id) {
   const shopContent = document.querySelector(".content__Shop");
   const product = document.createElement("div");
   product.className = `wrapper__Product`;
@@ -274,13 +295,13 @@ function appendProduct(fetchedProduct, id) {
     addButton.className = "product__addToCart";
     addButton.innerHTML = '<i class="fa-solid fa-cart-plus fa-xl"></i>';
     addButton.style = "border:3px solid black; align-self:start; padding:5px";
+
     addButton.onclick = () => {
       const id = Number(addButton.parentElement.querySelector(".product__Id").innerHTML);
       const count = Number(addButton.parentElement.querySelector(".counter__Display").value);
       const title = fetchedProductsMap.get(id).title;
       const brand = trimSpecialCharacters(trimWhiteSpace(fetchedProductsMap.get(id).brand));
       const price = Number(fetchedProductsMap.get(id).price);
-
       const newCartProducts = [...cartProducts];
       const findId = newCartProducts.filter((product) => product.id === Number(id));
 
@@ -291,21 +312,19 @@ function appendProduct(fetchedProduct, id) {
       }
 
       updateBrandTotal(brand, price, count);
-      appendManufacturer(cartProducts);
+      appendManufacturerToCart(cartProducts);
       appendProductToManufacturer(cartProducts);
-
       addButton.parentElement.querySelector(".counter__Display").value = "0";
-      console.log(id);
-      console.log(findId);
-      console.log(newCartProducts);
-      console.log(cartProducts);
+
+      updateGrandTotal();
     };
     product.appendChild(addButton);
   }
+
   addToCart();
 }
 
-function appendManufacturer(cartProducts) {
+function appendManufacturerToCart(cartProducts) {
   if (!cartProducts) {
     return;
   }
@@ -362,12 +381,12 @@ function appendProductToManufacturer(cartProducts) {
     <button class="button__Delete" onclick="deleteProduct(event, ${id},  )"><i class="fa-solid fa-trash fa-lg"></i></button>
     </div>
   `;
+
     if (!productSet.has(id)) {
       manufacturerBox.appendChild(manufacturerProduct);
       productSet.add(Number(id));
     } else {
       let oldProduct = document.querySelector(`.wrapper__Product__Cart__${id}`);
-
       oldProduct.remove();
       manufacturerBox.appendChild(manufacturerProduct);
     }
