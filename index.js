@@ -5,6 +5,10 @@ const productSet = new Set();
 const brandTotalMap = new Map();
 const isBrandCheckedSet = new Set();
 
+const getCurrentProduct = (id) => {
+  return cartProducts.filter((product) => product.id === Number(id))[0];
+};
+
 function addOne(e, id) {
   const counterDisplay = e.target.parentElement.parentElement.querySelector(".counter__Display");
   if (counterDisplay.value < 12) {
@@ -14,7 +18,7 @@ function addOne(e, id) {
   const count = counterDisplay.value || 0;
 
   if (e.target.className === "counter__Cart") {
-    const currentProduct = fetchedProductsMap.get(id);
+    const currentProduct = getCurrentProduct(id);
     const brand = trimWhiteSpace(trimSpecialCharacters(currentProduct.brand));
     const brandCountDisplay = document.querySelector(`.total__Manufacturer__${brand}`);
 
@@ -29,10 +33,11 @@ function addOne(e, id) {
       wrapperManufacturerTotal.appendChild(newTotalDisplay);
     }
     const price = currentProduct.price;
-
     const currentValue = brandTotalMap.get(brand);
     const newBrandTotal = currentValue + price;
-    newTotalDisplay(newBrandTotal);
+    if (currentProduct.isChecked === true) {
+      newTotalDisplay(newBrandTotal);
+    }
     brandTotalMap.set(brand, newBrandTotal);
 
     const newCartProducts = cartProducts.map((product) => {
@@ -72,14 +77,15 @@ function subtractOne(e, id) {
       wrapperManufacturerTotal.appendChild(newTotalDisplay);
     }
     const price = currentProduct.price;
-
     const currentValue = brandTotalMap.get(brand);
     const newBrandTotal = currentValue - price;
-    newTotalDisplay(newBrandTotal);
-    brandTotalMap.set(brand, newBrandTotal);
+    if (getCurrentProduct(id).isChecked === true) {
+      newTotalDisplay(newBrandTotal);
+      brandTotalMap.set(brand, newBrandTotal);
+    }
     let newCartProducts = [...cartProducts];
     newCartProducts = cartProducts.map((product) => {
-      if (id === product.id) {
+      if (Number(id) === product.id) {
         product.count = counterDisplay.value;
       }
       return product;
@@ -99,7 +105,9 @@ function trimSpecialCharacters(string) {
 }
 
 function getBrandTotal(brand) {
-  const requestedBrandProducts = cartProducts.filter((product) => product.brand === brand);
+  const requestedBrandProducts = cartProducts
+    .filter((product) => product.brand === brand)
+    .filter((product) => product.isChecked);
   const brandTotal = requestedBrandProducts.reduce(
     (accumulator, product) => accumulator + product.price * product.count,
     0
@@ -109,11 +117,21 @@ function getBrandTotal(brand) {
   return brandTotal;
 }
 
-function updateBrandTotal(brand, price, count) {
+function updateBrandTotal(id, brand, price, count, isChecked = true) {
   const brandCountDisplay = document.querySelector(`.total__Manufacturer__${brand}`);
-  const currentValue = brandTotalMap.get(brand);
-  const newBrandTotal = currentValue + price * count;
-  brandTotalMap.set(brand, newBrandTotal);
+  const oldBrandTotal = brandTotalMap.get(brand);
+  let newBrandTotal = oldBrandTotal;
+
+  if (isChecked === true) {
+    newBrandTotal = oldBrandTotal + price * getCurrentProduct(id).count;
+    brandTotalMap.set(brand, newBrandTotal);
+  }
+
+  if (isChecked === false) {
+    newBrandTotal = oldBrandTotal - price * getCurrentProduct(id).count;
+    brandTotalMap.set(brand, newBrandTotal);
+  }
+
   if (brandSet.has(brand)) {
     if (brandCountDisplay) {
       brandCountDisplay.remove();
@@ -145,7 +163,7 @@ function updateGrandTotal() {
   newWrapperGrandTotal.className = "wrapper__Grand__Total";
   newWrapperGrandTotal.innerHTML = `<label for="">
            Grand Total:
-            <input class="grand__Total" disabled type="number" value=${grandTotalValue}  style="width: 50px" />
+            <input class="grand__Total" disabled type="number" value=${grandTotalValue}  style="width: 100px" />
            </label>`;
   wrapperGrandTotal.remove();
   wrapperCart.appendChild(newWrapperGrandTotal);
@@ -160,23 +178,27 @@ function deleteProduct(e, id) {
   const counterDisplay = product.querySelector(`.counter__Display`);
   const manufacturerTotal = document.querySelector(`.total__Manufacturer__${brand}`);
 
+  let currentBrandTotal = brandTotalMap.get(brand);
+  const currentProduct = getCurrentProduct(id);
+
+  let newBrandTotal = currentBrandTotal - counterDisplay.value * price;
+
   if (productSet.has(id)) {
     product.remove();
     productSet.delete(id);
     const newCartProducts = cartProducts.filter((product) => {
       product.id !== Number(id);
     });
+    brandTotalMap.set(brand, newBrandTotal);
+
     cartProducts = [...newCartProducts];
-    if (manufacturerProducts.childNodes.length == 1) {
+    if (manufacturerProducts.childNodes.length === 1) {
       wrapperManufacturer.remove();
       brandSet.delete(brand);
+      const newBrandTotal = 0;
+      brandTotalMap.set(brand, newBrandTotal);
     }
   }
-  console.log(manufacturerProducts.childNodes.length);
-
-  let currentBrandTotal = brandTotalMap.get(brand);
-  const newBrandTotal = currentBrandTotal - Number(counterDisplay.value) * price;
-  brandTotalMap.set(brand, newBrandTotal);
 
   function newTotalDisplay(newBrandTotal) {
     const wrapperManufacturerTotal = document.querySelector(`.manufacturer__Total__${brand}`);
@@ -313,12 +335,13 @@ function appendFetchedProduct(fetchedProduct, id) {
           title: title,
           brand: brand,
           count: count,
+          isChecked: true,
         });
       } else {
         cartProducts[cartProducts.indexOf(findId[0])].count += count;
       }
 
-      updateBrandTotal(brand, price, count);
+      updateBrandTotal(id, brand, price, count);
       appendManufacturerToCart(cartProducts);
       appendProductToManufacturer(cartProducts);
       addButton.parentElement.querySelector(".counter__Display").value = "0";
@@ -419,6 +442,7 @@ function appendProductToManufacturer(cartProducts) {
 }
 
 function ProductCheckboxHandler(id) {
+  let currentProduct = getCurrentProduct(id);
   const brand = trimSpecialCharacters(trimWhiteSpace(fetchedProductsMap.get(id).brand));
   const manufacturerCheckbox = document.querySelector(`.checkbox__Manufacturer__${brand}`);
   if (isBrandCheckedSet.has(brand)) {
@@ -437,10 +461,9 @@ function ProductCheckboxHandler(id) {
   manufacturerCheckbox.checked = false;
   isBrandCheckedSet.delete(brand);
   const clickedCheckbox = document.querySelector(`checkbox__Product__${id}`);
-  // const { price, count } = currentProduct;
-  // const productTotal = price * count;
 
-  const currentProduct = cartProducts.filter((product) => product.id === Number(id))[0];
+  const { price, count } = currentProduct;
+
   const newCartProducts = cartProducts.map((product) => {
     if (product.id === Number(id)) {
       product.isChecked ? (product.isChecked = !product.isChecked) : (product.isChecked = true);
@@ -450,12 +473,10 @@ function ProductCheckboxHandler(id) {
 
   cartProducts = [...newCartProducts];
 
-  cartProducts.forEach((element) => {
-    if (element.id === id) {
-      console.log(element);
-      console.log(element.isChecked);
-    }
-  });
+  getBrandTotal();
+  currentProduct = getCurrentProduct(id);
+  updateBrandTotal(id, brand, price, count, currentProduct.isChecked);
+  updateGrandTotal();
 }
 
 function BrandCheckboxHandler(id) {
@@ -488,4 +509,9 @@ function BrandCheckboxHandler(id) {
   cartProducts = [...newCartProducts];
 
   console.log(cartProducts);
+
+  getBrandTotal();
+  const currentProduct = getCurrentProduct(id);
+  updateBrandTotal(id, brand, currentProduct.price, currentProduct.count, currentProduct.isChecked);
+  updateGrandTotal();
 }

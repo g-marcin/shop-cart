@@ -124,12 +124,19 @@ main {
   gap: 25px;
 }
 
-.wrapper__Shop,
+.wrapper__Shop {
+  border: 1px solid black;
+  display: flex;
+  flex-direction: column;
+  flex: 10;
+  align-self: stretch;
+}
+
 .wrapper__Cart {
   border: 1px solid black;
   display: flex;
   flex-direction: column;
-  flex: 1;
+  flex: 5;
   align-self: stretch;
 }
 
