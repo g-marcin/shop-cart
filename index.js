@@ -3,6 +3,7 @@ let cartProducts = [];
 const brandSet = new Set();
 const productSet = new Set();
 const brandTotalMap = new Map();
+const isBrandCheckedSet = new Set();
 
 function addOne(e, id) {
   const counterDisplay = e.target.parentElement.parentElement.querySelector(".counter__Display");
@@ -99,7 +100,10 @@ function trimSpecialCharacters(string) {
 
 function getBrandTotal(brand) {
   const requestedBrandProducts = cartProducts.filter((product) => product.brand === brand);
-  const brandTotal = requestedBrandProducts.reduce((accumulator, product) => accumulator + product.price * product.count, 0);
+  const brandTotal = requestedBrandProducts.reduce(
+    (accumulator, product) => accumulator + product.price * product.count,
+    0
+  );
   brandTotalMap.delete(brand);
   brandTotalMap.set(brand, brandTotal);
   return brandTotal;
@@ -134,13 +138,6 @@ function updateGrandTotal() {
   }));
   const grandTotalValue = arr.reduce((acc, val) => acc + val.value, 0);
   console.log(grandTotalValue);
-  // brandTotalMap.size > 1
-  //   ? ((grandTotalValue = brandTotalMap
-  //       .values()
-  //       .split(",")
-  //       .reduce((acc, val) => acc + val)),
-  //     0)
-  //   : (grandTotalValue = [...brandTotalMap.values()]);
 
   const wrapperGrandTotal = document.querySelector(".wrapper__Grand__Total");
   const grandTotal = document.querySelector(".grand__Total");
@@ -305,8 +302,18 @@ function appendFetchedProduct(fetchedProduct, id) {
       const newCartProducts = [...cartProducts];
       const findId = newCartProducts.filter((product) => product.id === Number(id));
 
+      if (count === 0) {
+        return;
+      }
+
       if (findId.length === 0) {
-        cartProducts.push({ id: id, price: price, title: title, brand: brand, count: count });
+        cartProducts.push({
+          id: id,
+          price: price,
+          title: title,
+          brand: brand,
+          count: count,
+        });
       } else {
         cartProducts[cartProducts.indexOf(findId[0])].count += count;
       }
@@ -317,6 +324,7 @@ function appendFetchedProduct(fetchedProduct, id) {
       addButton.parentElement.querySelector(".counter__Display").value = "0";
 
       updateGrandTotal();
+      console.log(cartProducts);
     };
     product.appendChild(addButton);
   }
@@ -337,8 +345,8 @@ function appendManufacturerToCart(cartProducts) {
 
     manufacturerBox.innerHTML = ` 
       <div class="manufacturer__Header">
-        <input type="checkbox" />
-        <div class="manufacturer__Name">${fetchedProductsMap.get(id).brand}</div>
+        <input type="checkbox" class="checkbox__Manufacturer__${brand}" onclick="BrandCheckboxHandler(${id})"  />
+        <div class="manufacturer__Name">${brand}</div>
       </div>
       <div class="manufacturer__Products__${brand} ${brand}">
      
@@ -355,20 +363,34 @@ function appendManufacturerToCart(cartProducts) {
 }
 
 function appendProductToManufacturer(cartProducts) {
-  const renderedManufacturerProducts = cartProducts.map(({ id, title, price, count, brand }) => {
-    const manufacturerBox = document.querySelector(`.${brand}`);
-    const manufacturerProduct = document.createElement("div");
-    manufacturerProduct.className = `wrapper__Product__Cart__${id}`;
-    manufacturerProduct.innerHTML = `
+  const renderedManufacturerProducts = cartProducts.map(
+    ({ id, title, price, count, brand, isChecked }) => {
+      let checkboxState;
+      switch (isChecked) {
+        case true:
+          checkboxState = true;
+          break;
+        case false:
+          checkboxState = false;
+          break;
+        default:
+          checkboxState = false;
+          break;
+      }
+
+      const manufacturerBox = document.querySelector(`.${brand}`);
+      const manufacturerProduct = document.createElement("div");
+      manufacturerProduct.className = `wrapper__Product__Cart__${id}`;
+      manufacturerProduct.innerHTML = `
     <div class=product__Cart__Data >
-      <label for=""> <input type="checkbox" class="product__Name" />${title}</label>
+      <label for=""> <input type="checkbox" class="checkbox__Product__${id} checkbox__Product__${brand}"  onclick="ProductCheckboxHandler(${id})"  />${title}</label>
       <div>${price}</div>
       <div class="product__Counter" style="display: flex; align-items: center">
       <input
         type="number"
         disabled
         class="counter__Display"
-       
+
         value=${count}
         style="width: 35px"
         
@@ -382,13 +404,88 @@ function appendProductToManufacturer(cartProducts) {
     </div>
   `;
 
-    if (!productSet.has(id)) {
-      manufacturerBox.appendChild(manufacturerProduct);
-      productSet.add(Number(id));
-    } else {
-      let oldProduct = document.querySelector(`.wrapper__Product__Cart__${id}`);
-      oldProduct.remove();
-      manufacturerBox.appendChild(manufacturerProduct);
+      if (!productSet.has(id)) {
+        manufacturerBox.appendChild(manufacturerProduct);
+        productSet.add(Number(id));
+      } else {
+        let oldProduct = document.querySelector(`.wrapper__Product__Cart__${id}`);
+        oldProduct.remove();
+        manufacturerBox.appendChild(manufacturerProduct);
+      }
+      const currentCheckbox = document.querySelector(`.checkbox__Product__${id}`);
+      currentCheckbox.checked = isChecked;
+    }
+  );
+}
+
+function ProductCheckboxHandler(id) {
+  const brand = trimSpecialCharacters(trimWhiteSpace(fetchedProductsMap.get(id).brand));
+  const manufacturerCheckbox = document.querySelector(`.checkbox__Manufacturer__${brand}`);
+  if (isBrandCheckedSet.has(brand)) {
+    isBrandCheckedSet.delete(brand);
+    let newCartProducts = [...cartProducts];
+    newCartProducts = newCartProducts.map((product) => {
+      if (product.brand === brand) {
+        product.isChecked = false;
+      }
+      return product;
+    });
+    cartProducts = [...newCartProducts];
+    console.log(cartProducts);
+  }
+
+  manufacturerCheckbox.checked = false;
+  isBrandCheckedSet.delete(brand);
+  const clickedCheckbox = document.querySelector(`checkbox__Product__${id}`);
+  // const { price, count } = currentProduct;
+  // const productTotal = price * count;
+
+  const currentProduct = cartProducts.filter((product) => product.id === Number(id))[0];
+  const newCartProducts = cartProducts.map((product) => {
+    if (product.id === Number(id)) {
+      product.isChecked ? (product.isChecked = !product.isChecked) : (product.isChecked = true);
+    }
+    return product;
+  });
+
+  cartProducts = [...newCartProducts];
+
+  cartProducts.forEach((element) => {
+    if (element.id === id) {
+      console.log(element);
+      console.log(element.isChecked);
     }
   });
+}
+
+function BrandCheckboxHandler(id) {
+  const brand = trimSpecialCharacters(trimWhiteSpace(fetchedProductsMap.get(id).brand));
+  const brandCheckboxArray = document.getElementsByClassName(`checkbox__Product__${brand}`);
+  for (let productCheckbox of brandCheckboxArray) {
+    productCheckbox.checked = false;
+  }
+
+  if (isBrandCheckedSet.has(brand)) {
+    isBrandCheckedSet.delete(brand);
+    const newCartProducts = [...cartProducts];
+    newCartProducts.map((product) => {
+      if (product.brand === brand) {
+        isChecked = false;
+      }
+    });
+  } else {
+    isBrandCheckedSet.add(brand);
+  }
+  const isBrandChecked = isBrandCheckedSet.has(brand);
+  const newCartProducts = [...cartProducts];
+  newCartProducts.map((product) => {
+    if (product.brand === brand) {
+      product.isChecked = isBrandChecked;
+    }
+    return product;
+  });
+
+  cartProducts = [...newCartProducts];
+
+  console.log(cartProducts);
 }
