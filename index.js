@@ -35,11 +35,11 @@ window.addEventListener("load", async (e) => {
   });
 });
 
-function initializeDisplay() {
-  array.forEach((element) => {});
-  appendManufacturerToCart(cartProducts);
-  appendProductToManufacturer();
-}
+// function initializeDisplay() {
+//   array.forEach((element) => {});
+//   appendManufacturerToCart(cartProducts);
+//   appendProductToManufacturer();
+// }
 
 function mapToJSON(map) {
   return JSON.stringify(Object.fromEntries(map));
@@ -610,4 +610,4 @@ window.addEventListener("unload", async (e) => {
   await window.localStorage.setItem("cartProductsJSON", cartProductsJSON);
   await window.localStorage.setItem("brandTotalMapJSON", brandTotalMapJSON);
   await window.localStorage.setItem("isBrandCheckedSetJSON", isBrandCheckedSetJSON);
-});
+}); //new
