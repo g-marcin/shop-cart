@@ -1,4 +1,5 @@
 # shop-cart
 This is an exercise for DOM manipulation.
 
-Preview: <a>shop-cart2.netlify.app</a>
+shop-cart Preview: 
+<a>https://shop-cart2.netlify.app/</a>
