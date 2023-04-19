@@ -118,9 +118,8 @@ main {
   border: 1px solid black;
   display: flex;
   align-items: center;
-  width: 1800px;
   height: 768px;
-  padding: 25px;
+
   gap: 25px;
 }
 
@@ -198,7 +197,7 @@ main {
 .wrapper__Product {
   border: 1px solid black;
   max-width: 300px;
-  padding: 25px;
+  padding: 5px;
   max-height: fit-content;
   display: flex;
   flex-direction: column;

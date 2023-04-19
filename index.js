@@ -35,6 +35,9 @@ window.addEventListener("load", async (e) => {
       if (window.localStorage.getItem("productSetJSON")) {
         productSet = JSONtoSet(window.localStorage.getItem("productSetJSON"));
       }
+      if (window.localStorage.getItem("isBrandCheckedSetJSON")) {
+        isBrandCheckedSet = JSONtoSet(window.localStorage.getItem("isBrandCheckedSetJSON"));
+      }
     }
     getDataFromLocalStorage();
 
@@ -59,17 +62,20 @@ window.addEventListener("load", async (e) => {
       Total:<input disabled class="total__Manufacturer__${brand}" value=${brandTotal} style="width:50px"/>
     </div>
   `;
-      // TODO: totalValue in manufacturer box
       cartContent.appendChild(manufacturerBox);
+      const manufacturerCheckbox = document.querySelector(`.checkbox__Manufacturer__${brand}`);
+      console.log(isBrandCheckedSet, "&&&");
+      if (isBrandCheckedSet.has(brand)) {
+        manufacturerCheckbox.checked = true;
+      }
     });
 
-    const renderedManufacturerProducts = cartProducts.map(
-      ({ id, title, price, count, brand, isChecked }) => {
-        const manufacturerBox = document.querySelector(`.${brand}`);
-        const manufacturerProduct = document.createElement("div");
-        manufacturerProduct.className = `wrapper__Product__Cart__${id}`;
+    const renderedManufacturerProducts = cartProducts.map(({ id, title, price, count, brand, isChecked }) => {
+      const manufacturerBox = document.querySelector(`.${brand}`);
+      const manufacturerProduct = document.createElement("div");
+      manufacturerProduct.className = `wrapper__Product__Cart__${id}`;
 
-        manufacturerProduct.innerHTML = `
+      manufacturerProduct.innerHTML = `
         <div class=product__Cart__Data >
           <label for=""> <input type="checkbox" class="checkbox__Product__${id} checkbox__Product__${brand}"  onclick="ProductCheckboxHandler(${id})" checked  />${title}</label>
           <div>${price}</div>
@@ -91,9 +97,15 @@ window.addEventListener("load", async (e) => {
         <button class="button__Delete" onclick="deleteProduct(event, ${id},  )"><i class="fa-solid fa-trash fa-lg"></i></button>
         </div>
       `;
-        manufacturerBox.appendChild(manufacturerProduct);
+      manufacturerBox.appendChild(manufacturerProduct);
+      const productCheckbox = document.querySelector(`.checkbox__Product__${id}`);
+      if (isBrandCheckedSet.has(brand)) {
+        productCheckbox.checked = false;
+      } else {
+        const currentProduct = getCurrentProduct(id);
+        productCheckbox.checked = currentProduct.isChecked;
       }
-    );
+    });
 
     updateGrandTotal();
   }
@@ -106,13 +118,8 @@ function getCurrentProduct(id) {
 }
 
 function getBrandTotal(brand) {
-  const requestedBrandProducts = cartProducts
-    .filter((product) => product.brand === brand)
-    .filter((product) => product.isChecked);
-  const brandTotal = requestedBrandProducts.reduce(
-    (accumulator, product) => accumulator + product.price * product.count,
-    0
-  );
+  const requestedBrandProducts = cartProducts.filter((product) => product.brand === brand).filter((product) => product.isChecked);
+  const brandTotal = requestedBrandProducts.reduce((accumulator, product) => accumulator + product.price * product.count, 0);
   brandTotalMap.delete(brand);
   brandTotalMap.set(brand, brandTotal);
   return brandTotal;
@@ -449,7 +456,6 @@ function appendFetchedProduct(fetchedProduct, id) {
       addButton.parentElement.querySelector(".counter__Display").value = "0";
 
       updateGrandTotal();
-      console.log(cartProducts);
     };
     product.appendChild(addButton);
   }
@@ -489,12 +495,11 @@ function appendManufacturerToCart(cartProducts) {
 }
 
 function appendProductToManufacturer(cartProducts) {
-  const renderedManufacturerProducts = cartProducts.map(
-    ({ id, title, price, count, brand, isChecked }) => {
-      const manufacturerBox = document.querySelector(`.${brand}`);
-      const manufacturerProduct = document.createElement("div");
-      manufacturerProduct.className = `wrapper__Product__Cart__${id}`;
-      manufacturerProduct.innerHTML = `
+  const renderedManufacturerProducts = cartProducts.map(({ id, title, price, count, brand, isChecked }) => {
+    const manufacturerBox = document.querySelector(`.${brand}`);
+    const manufacturerProduct = document.createElement("div");
+    manufacturerProduct.className = `wrapper__Product__Cart__${id}`;
+    manufacturerProduct.innerHTML = `
     <div class=product__Cart__Data >
       <label for=""> <input type="checkbox" class="checkbox__Product__${id} checkbox__Product__${brand}"  onclick="ProductCheckboxHandler(${id})"  />${title}</label>
       <div>${price}</div>
@@ -517,26 +522,29 @@ function appendProductToManufacturer(cartProducts) {
     </div>
   `;
 
-      if (!productSet.has(id)) {
-        if (manufacturerBox) {
-          manufacturerBox.appendChild(manufacturerProduct);
-          productSet.add(Number(id));
-        }
-      } else {
-        let oldProduct = document.querySelector(`.wrapper__Product__Cart__${id}`);
-        if (oldProduct) {
-          oldProduct.remove();
-        }
-        if (manufacturerBox) {
-          manufacturerBox.appendChild(manufacturerProduct);
-        }
+    if (!productSet.has(id)) {
+      if (manufacturerBox) {
+        manufacturerBox.appendChild(manufacturerProduct);
+        productSet.add(Number(id));
       }
-      const currentCheckbox = document.querySelector(`.checkbox__Product__${id}`);
-      if (currentCheckbox) {
-        currentCheckbox.checked = isChecked;
+    } else {
+      let oldProduct = document.querySelector(`.wrapper__Product__Cart__${id}`);
+      if (oldProduct) {
+        oldProduct.remove();
+      }
+      if (manufacturerBox) {
+        manufacturerBox.appendChild(manufacturerProduct);
       }
     }
-  );
+    const currentCheckbox = document.querySelector(`.checkbox__Product__${id}`);
+
+    const currentProduct = getCurrentProduct(id);
+    if (!isBrandCheckedSet.has(brand)) {
+      currentCheckbox.checked = currentProduct.isChecked;
+    } else {
+      currentCheckbox.checked = false;
+    }
+  });
 }
 
 function ProductCheckboxHandler(id) {
@@ -549,7 +557,6 @@ function ProductCheckboxHandler(id) {
       if (product.brand === brand) {
         product.isChecked = false;
       }
-
       return product;
     });
     cartProducts = [...newCartProducts];
@@ -627,9 +634,8 @@ function BrandCheckboxHandler(brand) {
     }
     updateBrandTotalDisplay();
     isBrandCheckedSet.add(brand);
+    console.log("brand added!");
   } else {
-    console.log("hello");
-
     const clearCartState = () => {
       let newCartProducts = [...cartProducts];
       newCartProducts = newCartProducts.map((product) => {
@@ -662,6 +668,7 @@ function BrandCheckboxHandler(brand) {
     updateBrandTotalDisplay();
     brandTotalMap.set(brand, 0);
     isBrandCheckedSet.delete(brand);
+    console.log("brand deleted!");
   }
   console.log(brandTotalMap);
   updateGrandTotal();
