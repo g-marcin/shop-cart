@@ -205,6 +205,14 @@ main {
   flex-grow: 1;
 }
 
+.product__Count {
+}
+
+.button__AddToCart {
+  justify-self: end;
+  align-self: flex-end;
+}
+
 .wrapper__Manufacturer {
   border: 1px solid black;
   height: fit-content;
