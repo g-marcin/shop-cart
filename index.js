@@ -98,7 +98,7 @@ function appendFetchedProduct(fetchedProduct) {
     addButton.innerHTML = '<i class="fa-solid fa-cart-plus fa-xl"></i>';
     addButton.style = "border:3px solid black; align-self:start; padding:5px";
     addButton.onclick = () => {
-      const id = Number(addButton.parentElement.querySelector(".product__Id").innerHTML);
+      const id = Number(addButton.parentElement.querySelector(".product__Id").innerText);
       const count = Number(addButton.parentElement.querySelector(".counter__Display").value);
       const title = fetchedProductsMap.get(id).title;
       const brand = trimSpecialCharacters(trimWhiteSpace(fetchedProductsMap.get(id).brand));
@@ -123,6 +123,11 @@ function appendFetchedProduct(fetchedProduct) {
       appendManufacturerToCart(cartProducts);
       appendProductToManufacturer(cartProducts);
       addButton.parentElement.querySelector(".counter__Display").value = "0";
+
+      updateBrandTotal(id, brand, price, count);
+      const newBrandTotal = updateBrandTotalMap(brand);
+      newTotalDisplay(newBrandTotal, brand);
+      isBrandCheckedSet.delete(brand);
       updateGrandTotal();
     };
     product.appendChild(addButton);
@@ -169,148 +174,113 @@ function appendProductToManufacturer() {
 window.addEventListener("unload", (e) => {
   saveDataToLocalStorage();
 });
+
 function ProductCheckboxHandler(id) {
-  let currentProduct = getCurrentProduct(id);
+  const currentProduct = getCurrentProduct(id);
   const { brand, price, count } = currentProduct;
-  const manufacturerCheckbox = document.querySelector(`.checkbox__Manufacturer__${brand}`);
 
   if (isBrandCheckedSet.has(brand)) {
     cartProducts.forEach((product) => {
       if (product.brand === brand) {
         product.isChecked = false;
       }
-      return product;
     });
     brandTotalMap.set(brand, 0);
+    const manufacturerCheckbox = document.querySelector(`.checkbox__Manufacturer__${brand}`);
+    manufacturerCheckbox.checked = false;
     isBrandCheckedSet.delete(brand);
   }
-  manufacturerCheckbox.checked = false;
 
   cartProducts.forEach((product) => {
     if (product.id === Number(id)) {
       product.isChecked ? (product.isChecked = !product.isChecked) : (product.isChecked = true);
     }
-    return product;
   });
-
-  updateBrandTotalMap();
   updateBrandTotal(id, brand, price, count, currentProduct.isChecked);
-  updateGrandTotal();
+  const newBrandTotal = updateBrandTotalMap(brand);
+  newTotalDisplay(newBrandTotal, brand);
   isBrandCheckedSet.delete(brand);
-}
-function BrandCheckboxHandler(brand) {
-  if (!isBrandCheckedSet.has(brand)) {
-    const clearProductsState = () => {
-      const clearProductsCheckboxes = () => {
-        const brandCheckboxArray = document.getElementsByClassName(`checkbox__Product__${brand}`);
-        for (let productCheckbox of brandCheckboxArray) {
-          productCheckbox.checked = false;
-        }
-      };
-      clearProductsCheckboxes();
-
-      const clearCartState = () => {
-        let newCartProducts = [...cartProducts];
-        newCartProducts = newCartProducts.map((product) => {
-          if (product.brand === brand) {
-            product.isChecked = true;
-          }
-        });
-      };
-      clearCartState();
-    };
-    clearProductsState();
-
-    function updateBrandTotalDisplay() {
-      const manufacturerTotal = document.querySelector(`.total__Manufacturer__${brand}`);
-      let newBrandTotal = updateBrandTotalMap(brand);
-      function newTotalDisplay(newBrandTotal) {
-        const wrapperManufacturerTotal = document.querySelector(`.manufacturer__Total__${brand}`);
-        const newTotalDisplay = document.createElement("input");
-        newTotalDisplay.disabled = true;
-        newTotalDisplay.className = `total__Manufacturer__${brand}`;
-        newTotalDisplay.value = newBrandTotal;
-        newTotalDisplay.style = "width:50px;";
-        if (wrapperManufacturerTotal) {
-          wrapperManufacturerTotal.appendChild(newTotalDisplay);
-        }
-      }
-      manufacturerTotal.remove();
-      console.log(newBrandTotal, "newBrandTotal");
-      newTotalDisplay(newBrandTotal);
-    }
-    updateBrandTotalDisplay();
-    isBrandCheckedSet.add(brand);
-    console.log("brand added!");
-  } else {
-    const clearCartState = () => {
-      let newCartProducts = [...cartProducts];
-      newCartProducts = newCartProducts.map((product) => {
-        if (product.brand === brand) {
-          product.isChecked = false;
-        }
-      });
-    };
-    clearCartState();
-
-    function updateBrandTotalDisplay() {
-      const manufacturerTotal = document.querySelector(`.total__Manufacturer__${brand}`);
-      let newBrandTotal = updateBrandTotalMap(brand);
-
-      function newTotalDisplay(newBrandTotal) {
-        const wrapperManufacturerTotal = document.querySelector(`.manufacturer__Total__${brand}`);
-        const newTotalDisplay = document.createElement("input");
-        newTotalDisplay.disabled = true;
-        newTotalDisplay.className = `total__Manufacturer__${brand}`;
-        newTotalDisplay.value = newBrandTotal;
-        newTotalDisplay.style = "width:50px;";
-        if (wrapperManufacturerTotal) {
-          wrapperManufacturerTotal.appendChild(newTotalDisplay);
-        }
-      }
-      manufacturerTotal.remove();
-      console.log(newBrandTotal, "newBrandTotal");
-      newTotalDisplay(newBrandTotal);
-    }
-    updateBrandTotalDisplay();
-    brandTotalMap.set(brand, 0);
-    isBrandCheckedSet.delete(brand);
-  }
   updateGrandTotal();
+}
+
+function BrandCheckboxHandler(id) {
+  if (!brand) {
+    return;
+  }
+  const currentProduct = getCurrentProduct(parseInt(id));
+  console.log(currentProduct);
+  // if (!isBrandCheckedSet.has(brand)) {
+  //   console.log("brand checked");
+  //   function clearProductsCheckboxes() {
+  //     const brandCheckboxArray = document.getElementsByClassName(`checkbox__Product__${brand}`);
+  //     for (let productCheckbox of brandCheckboxArray) {
+  //       productCheckbox.checked = false;
+  //     }
+  //   }
+  //   clearProductsCheckboxes();
+  //   let newCartProducts = [...cartProducts];
+  //   newCartProducts = newCartProducts.map((product) => {
+  //     if (product.brand === brand) {
+  //       product.isChecked = true;
+  //     }
+  //   });
+  //   cartProducts = [...newCartProducts];
+  //   isBrandCheckedSet.add(brand);
+  // } else {
+  //   let newCartProducts = [...cartProducts];
+  //   newCartProducts = newCartProducts.map((product) => {
+  //     if (product.brand === brand) {
+  //       product.isChecked = false;
+  //     }
+  //   });
+  //   cartProducts = [...newCartProducts];
+  // }
+  // const newBrandTotal = updateBrandTotalMap(brand);
+  // newTotalDisplay(newBrandTotal, brand);
+  // updateGrandTotal();
 }
 function incrementCount(e, id) {
-  const currentProduct = getCurrentProduct(id);
+  const currentProduct = getCurrentProduct(Number(id));
   const counterDisplay = e.target.parentElement.parentElement.querySelector(".counter__Display");
   counterDisplay.value++;
   if (e.target.className === "counter__Cart") {
-    const { brand, price } = currentProduct;
+    const { brand, price, count } = currentProduct;
     const currentValue = brandTotalMap.get(brand);
     const newBrandTotal = currentValue + price;
     if (currentProduct.isChecked === true) {
+      updateBrandTotal(id, brand, price, count, currentProduct.isChecked);
+      updateBrandTotalMap(brand);
+
       newTotalDisplay(newBrandTotal, brand);
     }
     brandTotalMap.set(brand, newBrandTotal);
-    cartProducts.forEach((product) => {
+    let newCartProducts = [...cartProducts];
+    newCartProducts.map((product) => {
       if (Number(id) === product.id) {
         product.count++;
       }
     });
+    cartProducts = [...newCartProducts];
     updateGrandTotal();
+    console.log("+1");
   }
 }
 function decrementCount(e, id) {
   const counterDisplay = e.target.parentElement.parentElement.querySelector(".counter__Display");
-  if (Number(counterDisplay.value > 1)) {
+  console.log(counterDisplay.value);
+  if (Number(counterDisplay.value) < 1) {
+    return;
+  }
+  if (Number(counterDisplay.value) > 1) {
     counterDisplay.value--;
   }
-
   if (e.target.className === "counter__Cart") {
     const currentProduct = fetchedProductsMap.get(id);
     const brand = trimWhiteSpace(trimSpecialCharacters(currentProduct.brand));
     const price = currentProduct.price;
     const currentValue = brandTotalMap.get(brand);
     const newBrandTotal = currentValue - price;
-    if (getCurrentProduct(id).isChecked && getCurrentProduct(id).isChecked === true) {
+    if (getCurrentProduct(id).isChecked === true) {
       newTotalDisplay(newBrandTotal, brand);
       brandTotalMap.set(brand, newBrandTotal);
     }
@@ -322,21 +292,21 @@ function decrementCount(e, id) {
       return product;
     });
     cartProducts = [...newCartProducts];
-    console.log(cartProducts);
     updateGrandTotal();
   }
 }
-function deleteProduct(e, id) {
+function deleteProduct(id) {
+  const currentProduct = getCurrentProduct(parseInt(id));
+  const { price, count } = currentProduct;
   const brand = trimSpecialCharacters(trimWhiteSpace(fetchedProductsMap.get(id).brand));
   const wrapperManufacturer = document.querySelector(`.wrapper__Manufacturer__${brand}`);
   const product = document.querySelector(`.wrapper__Product__Cart__${id}`);
   if (productSet.has(id)) {
-    product.remove();
-    productSet.delete(id);
-    const newBrandTotal = updateBrandTotalMap(brand);
-    brandTotalMap.set(brand, newBrandTotal);
     const newCartProducts = cartProducts.filter((product) => product.id !== Number(id));
     cartProducts = [...newCartProducts];
+    product.remove();
+    productSet.delete(id);
+    updateBrandTotalMap(brand);
 
     const manufacturerProducts = wrapperManufacturer.querySelector(`.${brand}`);
     if (manufacturerProducts.childNodes.length === 1) {
@@ -344,8 +314,10 @@ function deleteProduct(e, id) {
     }
   }
 
+  updateBrandTotal(id, brand, price, count, currentProduct.isChecked);
   const newBrandTotal = updateBrandTotalMap(brand);
   newTotalDisplay(newBrandTotal, brand);
+  isBrandCheckedSet.delete(brand);
   updateGrandTotal();
 }
 function updateBrandTotalMap(brand) {
@@ -360,12 +332,11 @@ function updateBrandTotalMap(brand) {
   return brandTotal;
 }
 function updateBrandTotal(id, brand, price, count, isChecked = true) {
-  const brandCountDisplay = document.querySelector(`.total__Manufacturer__${brand}`);
   const oldBrandTotal = brandTotalMap.get(brand);
   let newBrandTotal = oldBrandTotal;
 
   if (isChecked === true) {
-    newBrandTotal = oldBrandTotal + price * getCurrentProduct(id).count;
+    newBrandTotal = oldBrandTotal + price * count;
     brandTotalMap.set(brand, newBrandTotal);
   }
 
@@ -375,8 +346,9 @@ function updateBrandTotal(id, brand, price, count, isChecked = true) {
   }
 
   if (brandSet.has(brand)) {
-    brandCountDisplay.remove();
-    newTotalDisplay(newBrandTotal, brand);
+    const newDisplay = newTotalDisplay(newBrandTotal, brand);
+    const wrapperManufacturerTotal = document.querySelector(`.manufacturer__Total__${brand}`);
+    wrapperManufacturerTotal.appendChild(newDisplay);
   }
 }
 function updateGrandTotal() {
@@ -387,35 +359,39 @@ function updateGrandTotal() {
   getGrandTotalBox(grandTotalValue);
 }
 function newTotalDisplay(newBrandTotal, brand) {
-  const brandCountDisplay = document.querySelector(`.total__Manufacturer__${brand}`);
-
-  brandCountDisplay.remove();
-
   const wrapperManufacturerTotal = document.querySelector(`.manufacturer__Total__${brand}`);
+  const brandCountDisplay = document.querySelector(`.total__Manufacturer__${brand}`);
   const newTotalDisplay = document.createElement("input");
   newTotalDisplay.disabled = true;
   newTotalDisplay.className = `total__Manufacturer__${brand}`;
   newTotalDisplay.value = newBrandTotal;
   newTotalDisplay.style = "width:50px;";
-  wrapperManufacturerTotal.appendChild(newTotalDisplay);
+  // wrapperManufacturerTotal.appendChild(newTotalDisplay);
+  if (brandCountDisplay) {
+    brandCountDisplay.remove();
+  }
+  if (wrapperManufacturerTotal) {
+    wrapperManufacturerTotal.appendChild(newTotalDisplay);
+  }
+  return newTotalDisplay;
 }
-function saveDataToLocalStorage() {
-  const fetchedProductsMapJSON = mapToJSON(fetchedProductsMap);
-  const brandSetJSON = setToJSON(brandSet);
-  const productSetJSON = setToJSON(productSet);
-  const cartProductsJSON = JSON.stringify(cartProducts);
-  const brandTotalMapJSON = mapToJSON(brandTotalMap);
-  const isBrandCheckedSetJSON = setToJSON(isBrandCheckedSet);
+// function saveDataToLocalStorage() {
+//   const fetchedProductsMapJSON = mapToJSON(fetchedProductsMap);
+//   const brandSetJSON = setToJSON(brandSet);
+//   const productSetJSON = setToJSON(productSet);
+//   const cartProductsJSON = JSON.stringify(cartProducts);
+//   const brandTotalMapJSON = mapToJSON(brandTotalMap);
+//   const isBrandCheckedSetJSON = setToJSON(isBrandCheckedSet);
 
-  window.localStorage.clear();
-  window.localStorage.setItem("fetchedProductsMapJSON", fetchedProductsMapJSON);
-  window.localStorage.setItem("brandSetJSON", brandSetJSON);
-  window.localStorage.setItem("productSetJSON", productSetJSON);
-  window.localStorage.setItem("cartProductsJSON", cartProductsJSON);
-  window.localStorage.setItem("brandTotalMapJSON", brandTotalMapJSON);
-  window.localStorage.setItem("isBrandCheckedSetJSON", isBrandCheckedSetJSON);
-  window.localStorage.setItem("data", "true");
-}
+//   window.localStorage.clear();
+//   window.localStorage.setItem("fetchedProductsMapJSON", fetchedProductsMapJSON);
+//   window.localStorage.setItem("brandSetJSON", brandSetJSON);
+//   window.localStorage.setItem("productSetJSON", productSetJSON);
+//   window.localStorage.setItem("cartProductsJSON", cartProductsJSON);
+//   window.localStorage.setItem("brandTotalMapJSON", brandTotalMapJSON);
+//   window.localStorage.setItem("isBrandCheckedSetJSON", isBrandCheckedSetJSON);
+//   window.localStorage.setItem("data", "true");
+// }
 function getManufacturerBox(brand) {
   updateBrandTotalMap(brand);
   const brandTotal = brandTotalMap.get(brand);
@@ -423,7 +399,7 @@ function getManufacturerBox(brand) {
   manufacturerBox.className = `wrapper__Manufacturer__${brand}`;
   manufacturerBox.innerHTML = ` 
       <div class="manufacturer__Header">
-        <input type="checkbox" class="checkbox__Manufacturer__${brand}" onclick="BrandCheckboxHandler('${brand}')"  />
+        <input type="checkbox" class="checkbox__Manufacturer__${brand}" onclick="BrandCheckboxHandler("${brand}")"  />
         <div class="manufacturer__Name">${brand}</div>
       </div>
       <div class="manufacturer__Products__${brand} ${brand}">
@@ -447,7 +423,7 @@ function getManufacturerProduct(id, brand, title, price, count) {
       <input
         type="number"
         disabled
-        class="counter__Display"
+        class="counter__Display counter__Display__${id}"
         value=${count}
       />
       <div style="display: flex; flex-direction: column">
@@ -455,11 +431,34 @@ function getManufacturerProduct(id, brand, title, price, count) {
         <button class="counter__Cart" onclick="decrementCount(event, ${id})">-</button>
       </div>
     </div>
-    <button class="button__Delete" onclick="deleteProduct(event, ${id},  )"><i class="fa-solid fa-trash fa-lg"></i></button>
+    <button class="button__Delete" onclick="deleteProduct(${id})"><i class="fa-solid fa-trash fa-lg"></i></button>
     </div>
   `;
   return manufacturerProduct;
 }
+function getGrandTotalBox(grandTotalValue) {
+  const wrapperCart = document.querySelector(".wrapper__Cart");
+  const wrapperGrandTotal = document.querySelector(".wrapper__Grand__Total");
+  const newWrapperGrandTotal = document.createElement("div");
+  newWrapperGrandTotal.className = "wrapper__Grand__Total";
+  newWrapperGrandTotal.innerHTML = `<label for="">
+         Grand Total:
+          <input class="grand__Total" disabled type="number" value=${grandTotalValue}  />
+         </label>`;
+  wrapperGrandTotal.remove();
+  wrapperCart.appendChild(newWrapperGrandTotal);
+}
+function removeManufacturerBox(brand, id) {
+  const wrapperManufacturer = document.querySelector(`.wrapper__Manufacturer__${brand}`);
+  wrapperManufacturer.remove();
+  productSet.delete(id);
+  updateBrandTotalMap(brand);
+  isBrandCheckedSet.delete(brand);
+  brandSet.delete(brand);
+}
+
+//Helpers
+
 function mapToJSON(map) {
   return JSON.stringify(Object.fromEntries(map));
 }
@@ -481,28 +480,4 @@ function trimSpecialCharacters(string) {
 }
 function getCurrentProduct(id) {
   return cartProducts.filter((product) => product.id === Number(id))[0];
-}
-
-function getGrandTotalBox(grandTotalValue) {
-  const wrapperCart = document.querySelector(".wrapper__Cart");
-  const wrapperGrandTotal = document.querySelector(".wrapper__Grand__Total");
-  const newWrapperGrandTotal = document.createElement("div");
-  newWrapperGrandTotal.className = "wrapper__Grand__Total";
-  newWrapperGrandTotal.innerHTML = `<label for="">
-         Grand Total:
-          <input class="grand__Total" disabled type="number" value=${grandTotalValue}  />
-         </label>`;
-  wrapperGrandTotal.remove();
-  wrapperCart.appendChild(newWrapperGrandTotal);
-}
-
-function removeManufacturerBox(brand, id) {
-  const wrapperManufacturer = document.querySelector(`.wrapper__Manufacturer__${brand}`);
-
-  wrapperManufacturer.remove();
-  productSet.delete(id);
-  const newBrandTotal = updateBrandTotalMap(brand);
-  brandTotalMap.set(brand, newBrandTotal);
-  isBrandCheckedSet.delete(brand);
-  brandSet.delete(brand);
 }
