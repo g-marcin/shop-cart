@@ -212,6 +212,18 @@ main {
   align-self: flex-end;
 }
 
+.product__Id {
+  display: none;
+}
+
+.counter__Display {
+  width: 35px;
+}
+
+.grand__Total {
+  width: 100px;
+}
+
 .wrapper__Manufacturer {
   border: 1px solid black;
   height: fit-content;
@@ -260,6 +272,11 @@ main {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.product__Counter {
+  display: flex;
+  align-items: "center";
 }
 
 .manufacturer__Total {
