@@ -18,7 +18,6 @@ function appendFetchedProduct(fetchedProduct) {
     const addButton = document.createElement("button");
     addButton.className = "button__DisplayAddToCartButton";
     addButton.innerHTML = '<i class="fa-solid fa-cart-plus fa-xl"></i>';
-    addButton.style = "border:3px solid black; align-self:start; padding:5px";
     addButton.onclick = () => {
       const id = Number(addButton.parentElement.querySelector(".product__Id").innerText);
       const count = Number(addButton.parentElement.querySelector(".counter__Display").value);
@@ -249,9 +248,9 @@ function newTotalDisplay(newBrandTotal, brand) {
   const brandCountDisplay = document.querySelector(`.total__Manufacturer__${brand}`);
   const newTotalDisplay = document.createElement("input");
   newTotalDisplay.disabled = true;
-  newTotalDisplay.className = `total__Manufacturer__${brand}`;
+  newTotalDisplay.className = `total__Manufacturer total__Manufacturer__${brand}`;
   newTotalDisplay.value = newBrandTotal;
-  newTotalDisplay.style = "width:50px;";
+
   if (brandCountDisplay) {
     brandCountDisplay.remove();
   }
@@ -294,9 +293,8 @@ function getFetchedProduct(fetchedProduct) {
       disabled
       class="counter__Display"
       value="0"
-      style="width: 35px; margin:5px"
     />
-    <div style="display: flex; flex-direction: column">
+    <div>
       <button class="counter__Product" onclick="incrementCount(event)"> + </button>
       <button class="counter__Product"  onclick="decrementCount(event)"> - </button>
     </div>
@@ -317,8 +315,8 @@ function getManufacturerBox(brand) {
       <div class="manufacturer__Products__${brand} ${brand}">
      
       </div>
-      <div class="manufacturer__Total__${brand} manufacturer__Total" style="display:flex">
-        Total:<input disabled class="total__Manufacturer__${brand}" value=${brandTotal} style="width:50px"/>
+      <div class="manufacturer__Total__${brand} manufacturer__Total" >
+        Total:<input disabled class="total__Manufacturer total__Manufacturer__${brand}" value=${brandTotal} />
       </div>
     `;
 
@@ -331,14 +329,14 @@ function getManufacturerProduct(id, brand, title, price, count) {
     <div class=product__Cart__Data >
       <label for=""> <input type="checkbox" class="checkbox__Product__${id} checkbox__Product__${brand}"  onclick="ProductCheckboxHandler(${id})" checked  />${title}</label>
       <div>${price}</div>
-      <div class="product__Counter" style="display: flex; align-items: center">
+      <div class="product__Counter" >
       <input
         type="number"
         disabled
         class="counter__Display counter__Display__${id}"
         value=${count}
       />
-      <div style="display: flex; flex-direction: column">
+      <div class="wrapper__Counter">
         <button class="counter__Cart" onclick="incrementCount(event, ${id})">+</button>
         <button class="counter__Cart" onclick="decrementCount(event, ${id})">-</button>
       </div>

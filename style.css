@@ -51,6 +51,12 @@ button {
   padding: 5px;
 }
 
+.button__DisplayAddToCartButton {
+  border: 3px solid black;
+  align-self: start;
+  padding: 5px;
+}
+
 body {
   padding: 25px;
 }
@@ -216,8 +222,14 @@ main {
   display: none;
 }
 
+.wrapper__Counter {
+  display: flex;
+  flex-direction: column;
+}
+
 .counter__Display {
   width: 35px;
+  margin: 5px;
 }
 
 .grand__Total {
@@ -248,6 +260,9 @@ main {
   flex-direction: column;
   border: 1px solid black;
   margin: 0px;
+}
+.manufacturer__Total {
+  display: flex;
 }
 
 .wrapper__Product__Cart {
@@ -284,6 +299,10 @@ main {
   display: flex;
   justify-content: center;
   padding: 10px;
+}
+
+.total__Manufacturer {
+  width: 50px;
 }
 
 .wrapper__Grand__Total {
