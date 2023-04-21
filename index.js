@@ -1,9 +1,9 @@
+let fetchedProductsMap = new Map();
 let cartProducts = [];
-let brandSet = new Set();
-let productSet = new Set();
+// let brandSet = new Set();
+// let productSet = new Set();
 let brandTotalMap = new Map();
 let isBrandCheckedSet = new Set();
-let fetchedProductsMap = new Map();
 
 window.addEventListener("load", async () => {
   initializeShopDisplay();
@@ -25,6 +25,8 @@ function appendFetchedProduct(fetchedProduct) {
       const brand = trimSpecialCharacters(trimWhiteSpace(fetchedProductsMap.get(id).brand));
       const price = Number(fetchedProductsMap.get(id).price);
       const newCartProducts = [...cartProducts];
+      const brandSet = getBrandSet();
+      const productSet = getProductSet();
       if (count === 0) {
         return;
       }
@@ -41,8 +43,8 @@ function appendFetchedProduct(fetchedProduct) {
       } else {
         cartProducts[cartProducts.indexOf(findId[0])].count += count;
       }
-      appendManufacturerToCart(cartProducts);
-      appendProductToManufacturer(cartProducts);
+      appendManufacturerToCart();
+      appendProductToManufacturer();
       addButton.parentElement.querySelector(".counter__Display").value = "0";
 
       updateBrandTotal(id, brand, price, count);
@@ -56,8 +58,11 @@ function appendFetchedProduct(fetchedProduct) {
   DisplayAddToCartButton();
 }
 function appendManufacturerToCart() {
+  // const brandSet = getBrandSet();
   const cartContent = document.querySelector(".content__Cart");
-  cartProducts.forEach(({ brand }) => {
+  let newCartProducts = [...cartProducts];
+
+  newCartProducts = newCartProducts.map(({ brand }) => {
     const manufacturerBox = getManufacturerBox(brand);
 
     if (!brandSet.has(brand)) {
@@ -67,7 +72,8 @@ function appendManufacturerToCart() {
   });
 }
 function appendProductToManufacturer() {
-  cartProducts.forEach(({ id, title, price, count, brand }) => {
+  let newCartProducts = [...cartProducts];
+  newCartProducts = newCartProducts.map(({ id, title, price, count, brand }) => {
     const manufacturerBox = document.querySelector(`.${brand}`);
     const manufacturerProduct = getManufacturerProduct(id, brand, title, price, count);
 
@@ -79,6 +85,7 @@ function appendProductToManufacturer() {
       oldProduct.remove();
       manufacturerBox.appendChild(manufacturerProduct);
     }
+    cartProducts = [...newCartProducts];
 
     function updateCheckboxState() {
       const currentProduct = getCurrentProduct(id);
@@ -120,6 +127,7 @@ function ManufacturerCheckboxHandler(brand) {
   } else {
     setBrandProductsState(brand, false);
   }
+  console.log(getBrandTotal(brand));
 }
 function incrementCount(e, id) {
   const counterDisplay = e.target.parentElement.parentElement.querySelector(".counter__Display");
@@ -459,7 +467,7 @@ function initializeCartDisplay() {
   }
 
   getDataFromLocalStorage();
-  const initialBrands = Array.from(brandSet);
+  const initialBrands = Array.from(getBrandSet());
   initialBrands.forEach((brand) => {
     const manufacturerBox = getManufacturerBox(brand);
     cartContent.appendChild(manufacturerBox);
@@ -484,4 +492,28 @@ async function initializeShopDisplay() {
     appendFetchedProduct(fetchedProduct, fetchedProduct.id);
     fetchedProductsMap.set(fetchedProduct.id, fetchedProduct);
   });
+}
+function getBrandSet() {
+  const brandSet = new Set();
+  const newCartProducts = [...cartProducts];
+  newCartProducts.forEach((product) => {
+    brandSet.add(product.brand);
+  });
+  return brandSet;
+}
+function getProductSet() {
+  const productSet = new Set();
+  cartProducts.forEach((product) => {
+    productSet.add(product.id);
+  });
+  return productSet;
+}
+function getBrandTotal(brand) {
+  let newCartProducts = [...cartProducts];
+  newCartProducts = newCartProducts
+    .filter((product) => {
+      brand === product.brand;
+    })
+    .reduce((acc, val) => acc + val.count * val.price, 0);
+  return brandTotal;
 }
