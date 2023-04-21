@@ -5,57 +5,8 @@ let brandTotalMap = new Map();
 let isBrandCheckedSet = new Set();
 let fetchedProductsMap = new Map();
 
-window.addEventListener("load", async (e) => {
-  const response = await fetch("https://dummyjson.com/products");
-  const jsonData = await response.json();
-  const { products } = jsonData;
-  products.map((fetchedProduct) => {
-    appendFetchedProduct(fetchedProduct, fetchedProduct.id);
-    fetchedProductsMap.set(fetchedProduct.id, fetchedProduct);
-  });
-
-  function initializeCartDisplay() {
-    const cartContent = document.querySelector(".content__Cart");
-
-    function getDataFromLocalStorage() {
-      if (window.localStorage.getItem("fetchedProductMapJSON")) {
-        fetchedProductsMap = JSONtoMap(window.localStorage.getItem("fetchedProductMapJSON"));
-      }
-      if (window.localStorage.getItem("cartProductsJSON")) {
-        cartProducts = JSON.parse(window.localStorage.getItem("cartProductsJSON"));
-      }
-      if (window.localStorage.getItem("brandTotalMapJSON")) {
-        brandTotalMap = JSONtoMap(window.localStorage.getItem("brandTotalMapJSON"));
-      }
-      if (window.localStorage.getItem("brandSetJSON")) {
-        brandSet = JSONtoSet(window.localStorage.getItem("brandSetJSON"));
-      }
-      if (window.localStorage.getItem("productSetJSON")) {
-        productSet = JSONtoSet(window.localStorage.getItem("productSetJSON"));
-      }
-      if (window.localStorage.getItem("isBrandCheckedSetJSON")) {
-        isBrandCheckedSet = JSONtoSet(window.localStorage.getItem("isBrandCheckedSetJSON"));
-      }
-    }
-
-    getDataFromLocalStorage();
-    const initialBrands = Array.from(brandSet);
-    initialBrands.forEach((brand) => {
-      const manufacturerBox = getManufacturerBox(brand);
-      cartContent.appendChild(manufacturerBox);
-      const manufacturerCheckbox = document.querySelector(`.checkbox__Manufacturer__${brand}`);
-      if (isBrandCheckedSet.has(brand)) {
-        manufacturerCheckbox.checked = true;
-      }
-    });
-    cartProducts.forEach(({ id, title, price, count, brand }) => {
-      const manufacturerBox = document.querySelector(`.${brand}`);
-      const manufacturerProduct = getManufacturerProduct(id, brand, title, price, count);
-      manufacturerBox.appendChild(manufacturerProduct);
-      getProductCheckboxState(id);
-    });
-    setGrandTotal();
-  }
+window.addEventListener("load", async () => {
+  initializeShopDisplay();
   initializeCartDisplay();
 });
 function appendFetchedProduct(fetchedProduct) {
@@ -326,7 +277,6 @@ function saveDataToLocalStorage() {
   window.localStorage.setItem("isBrandCheckedSetJSON", isBrandCheckedSetJSON);
   window.localStorage.setItem("data", "true");
 }
-
 function getFetchedProduct(fetchedProduct) {
   const product = document.createElement("div");
   product.className = `wrapper__Product`;
@@ -418,9 +368,7 @@ function removeManufacturerBox(brand, id) {
   isBrandCheckedSet.delete(brand);
   brandSet.delete(brand);
 }
-
 //Helpers
-
 function mapToJSON(map) {
   return JSON.stringify(Object.fromEntries(map));
 }
@@ -487,4 +435,55 @@ function getProductCheckboxState(id) {
     const currentProduct = getCurrentProduct(id);
     productCheckbox.checked = currentProduct.isChecked;
   }
+}
+function initializeCartDisplay() {
+  const cartContent = document.querySelector(".content__Cart");
+
+  function getDataFromLocalStorage() {
+    if (window.localStorage.getItem("fetchedProductMapJSON")) {
+      fetchedProductsMap = JSONtoMap(window.localStorage.getItem("fetchedProductMapJSON"));
+    }
+    if (window.localStorage.getItem("cartProductsJSON")) {
+      cartProducts = JSON.parse(window.localStorage.getItem("cartProductsJSON"));
+    }
+    if (window.localStorage.getItem("brandTotalMapJSON")) {
+      brandTotalMap = JSONtoMap(window.localStorage.getItem("brandTotalMapJSON"));
+    }
+    if (window.localStorage.getItem("brandSetJSON")) {
+      brandSet = JSONtoSet(window.localStorage.getItem("brandSetJSON"));
+    }
+    if (window.localStorage.getItem("productSetJSON")) {
+      productSet = JSONtoSet(window.localStorage.getItem("productSetJSON"));
+    }
+    if (window.localStorage.getItem("isBrandCheckedSetJSON")) {
+      isBrandCheckedSet = JSONtoSet(window.localStorage.getItem("isBrandCheckedSetJSON"));
+    }
+  }
+
+  getDataFromLocalStorage();
+  const initialBrands = Array.from(brandSet);
+  initialBrands.forEach((brand) => {
+    const manufacturerBox = getManufacturerBox(brand);
+    cartContent.appendChild(manufacturerBox);
+    const manufacturerCheckbox = document.querySelector(`.checkbox__Manufacturer__${brand}`);
+    if (isBrandCheckedSet.has(brand)) {
+      manufacturerCheckbox.checked = true;
+    }
+  });
+  cartProducts.forEach(({ id, title, price, count, brand }) => {
+    const manufacturerBox = document.querySelector(`.${brand}`);
+    const manufacturerProduct = getManufacturerProduct(id, brand, title, price, count);
+    manufacturerBox.appendChild(manufacturerProduct);
+    getProductCheckboxState(id);
+  });
+  setGrandTotal();
+}
+async function initializeShopDisplay() {
+  const response = await fetch("https://dummyjson.com/products");
+  const jsonData = await response.json();
+  const { products } = jsonData;
+  products.map((fetchedProduct) => {
+    appendFetchedProduct(fetchedProduct, fetchedProduct.id);
+    fetchedProductsMap.set(fetchedProduct.id, fetchedProduct);
+  });
 }
