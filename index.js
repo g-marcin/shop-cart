@@ -153,31 +153,19 @@ window.addEventListener("unload", (e) => {
 });
 function ProductCheckboxHandler(id) {
   const currentProduct = getCurrentProduct(id);
-  const { brand, price, count } = currentProduct;
+  const { brand } = currentProduct;
 
   if (isBrandCheckedSet.has(brand)) {
-    cartProducts.forEach((product) => {
-      if (product.brand === brand) {
-        product.isChecked = false;
-      }
-    });
-    brandTotalMap.set(brand, 0);
-    const manufacturerCheckbox = document.querySelector(`.checkbox__Manufacturer__${brand}`);
-    manufacturerCheckbox.checked = false;
-    isBrandCheckedSet.delete(brand);
+    setBrandProductsState(brand, false);
   }
 
-  cartProducts.forEach((product) => {
-    if (product.id === Number(id)) {
-      product.isChecked ? (product.isChecked = !product.isChecked) : (product.isChecked = true);
-    }
+  findProductAndApply(id, (product) => {
+    product.isChecked = !product.isChecked;
   });
-  updateBrandTotal(id, brand, price, count, currentProduct.isChecked);
+
   const newBrandTotal = updateBrandTotalMap(brand);
   newTotalDisplay(newBrandTotal, brand);
-  isBrandCheckedSet.delete(brand);
   updateGrandTotal();
-  console.log(cartProducts);
 }
 function ManufacturerCheckboxHandler(brand) {
   if (!isBrandCheckedSet.has(brand)) {
@@ -281,23 +269,23 @@ function newTotalDisplay(newBrandTotal, brand) {
   }
   return newTotalDisplay;
 }
-// function saveDataToLocalStorage() {
-//   const fetchedProductsMapJSON = mapToJSON(fetchedProductsMap);
-//   const brandSetJSON = setToJSON(brandSet);
-//   const productSetJSON = setToJSON(productSet);
-//   const cartProductsJSON = JSON.stringify(cartProducts);
-//   const brandTotalMapJSON = mapToJSON(brandTotalMap);
-//   const isBrandCheckedSetJSON = setToJSON(isBrandCheckedSet);
+function saveDataToLocalStorage() {
+  const fetchedProductsMapJSON = mapToJSON(fetchedProductsMap);
+  const brandSetJSON = setToJSON(brandSet);
+  const productSetJSON = setToJSON(productSet);
+  const cartProductsJSON = JSON.stringify(cartProducts);
+  const brandTotalMapJSON = mapToJSON(brandTotalMap);
+  const isBrandCheckedSetJSON = setToJSON(isBrandCheckedSet);
 
-//   window.localStorage.clear();
-//   window.localStorage.setItem("fetchedProductsMapJSON", fetchedProductsMapJSON);
-//   window.localStorage.setItem("brandSetJSON", brandSetJSON);
-//   window.localStorage.setItem("productSetJSON", productSetJSON);
-//   window.localStorage.setItem("cartProductsJSON", cartProductsJSON);
-//   window.localStorage.setItem("brandTotalMapJSON", brandTotalMapJSON);
-//   window.localStorage.setItem("isBrandCheckedSetJSON", isBrandCheckedSetJSON);
-//   window.localStorage.setItem("data", "true");
-// }
+  window.localStorage.clear();
+  window.localStorage.setItem("fetchedProductsMapJSON", fetchedProductsMapJSON);
+  window.localStorage.setItem("brandSetJSON", brandSetJSON);
+  window.localStorage.setItem("productSetJSON", productSetJSON);
+  window.localStorage.setItem("cartProductsJSON", cartProductsJSON);
+  window.localStorage.setItem("brandTotalMapJSON", brandTotalMapJSON);
+  window.localStorage.setItem("isBrandCheckedSetJSON", isBrandCheckedSetJSON);
+  window.localStorage.setItem("data", "true");
+}
 
 function getFetchedProduct(fetchedProduct) {
   const product = document.createElement("div");
@@ -483,4 +471,11 @@ function setBrandProductsState(brand, areChecked) {
   brandTotalMap.set(brand, newBrandTotal);
   newTotalDisplay(newBrandTotal, brand);
   updateGrandTotal();
+}
+function findProductAndApply(id, cb) {
+  cartProducts.forEach((product) => {
+    if (product.id === Number(id)) {
+      cb(product);
+    }
+  });
 }
