@@ -1,9 +1,9 @@
 let cartProducts = [];
-const brandSet = new Set();
-const productSet = new Set();
-const brandTotalMap = new Map();
-const isBrandCheckedSet = new Set();
-const fetchedProductsMap = new Map();
+let brandSet = new Set();
+let productSet = new Set();
+let brandTotalMap = new Map();
+let isBrandCheckedSet = new Set();
+let fetchedProductsMap = new Map();
 
 window.addEventListener("load", async (e) => {
   const response = await fetch("https://dummyjson.com/products");
@@ -66,30 +66,7 @@ window.addEventListener("load", async (e) => {
 });
 function appendFetchedProduct(fetchedProduct) {
   const shopContent = document.querySelector(".content__Shop");
-  const product = document.createElement("div");
-  product.className = `wrapper__Product`;
-  product.innerHTML = `
-  <div class="product__Id">${fetchedProduct.id}</div>
-  <img class="product__Thumbnail" src="${fetchedProduct.images[0]}" alt = "product_Thumbnail"/>
-  <div class="product__Title">${fetchedProduct.title}</div>
-  <div class="product__Brand">${fetchedProduct.brand}</div>
-  <div class="product__Description">${fetchedProduct.description}</div>
-  <div class="product__Price">${fetchedProduct.price}</div>
-  <div class="product__Count">
-  <div class="product__Counter">
-    <input
-      type="number"
-      disabled
-      class="counter__Display"
-      value="0"
-      style="width: 35px; margin:5px"
-    />
-    <div style="display: flex; flex-direction: column">
-      <button onclick="incrementCount(event)">+</button>
-      <button onclick="decrementCount(event)">-</button>
-    </div>
-  </div>  
-  `;
+  const product = getFetchedProduct(fetchedProduct);
   shopContent.appendChild(product);
 
   function DisplayAddToCartButton() {
@@ -246,21 +223,17 @@ function incrementCount(e, id) {
 }
 function decrementCount(e, id) {
   const counterDisplay = e.target.parentElement.parentElement.querySelector(".counter__Display");
-  console.log(counterDisplay.value);
-
-  if (Number(counterDisplay.value) > 1) {
-    counterDisplay.value--;
-  } else {
+  if (Number(counterDisplay.value) < 1) {
     return;
   }
-
   if (e.target.className === "counter__Cart") {
     decrementCartCount(id);
   }
+  counterDisplay.value--;
 }
 function deleteProduct(id) {
   const currentProduct = getCurrentProduct(parseInt(id));
-  const { price, count } = currentProduct;
+  const { price, count, isChecked } = currentProduct;
   const brand = trimSpecialCharacters(trimWhiteSpace(fetchedProductsMap.get(id).brand));
   const wrapperManufacturer = document.querySelector(`.wrapper__Manufacturer__${brand}`);
   const product = document.querySelector(`.wrapper__Product__Cart__${id}`);
@@ -268,16 +241,15 @@ function deleteProduct(id) {
     const newCartProducts = cartProducts.filter((product) => product.id !== Number(id));
     cartProducts = [...newCartProducts];
     product.remove();
-    productSet.delete(id);
     updateBrandTotalMap(brand);
-
+    productSet.delete(id);
     const manufacturerProducts = wrapperManufacturer.querySelector(`.${brand}`);
     if (manufacturerProducts.childNodes.length === 1) {
       removeManufacturerBox(brand, id);
     }
   }
 
-  updateBrandTotal(id, brand, price, count, currentProduct.isChecked);
+  updateBrandTotal(id, brand, price, count, isChecked);
   const newBrandTotal = updateBrandTotalMap(brand);
   newTotalDisplay(newBrandTotal, brand);
   isBrandCheckedSet.delete(brand);
@@ -355,6 +327,34 @@ function newTotalDisplay(newBrandTotal, brand) {
 //   window.localStorage.setItem("isBrandCheckedSetJSON", isBrandCheckedSetJSON);
 //   window.localStorage.setItem("data", "true");
 // }
+
+function getFetchedProduct(fetchedProduct) {
+  const product = document.createElement("div");
+  product.className = `wrapper__Product`;
+  product.innerHTML = `
+  <div class="product__Id">${fetchedProduct.id}</div>
+  <img class="product__Thumbnail" src="${fetchedProduct.images[0]}" alt = "product_Thumbnail"/>
+  <div class="product__Title">${fetchedProduct.title}</div>
+  <div class="product__Brand">${fetchedProduct.brand}</div>
+  <div class="product__Description">${fetchedProduct.description}</div>
+  <div class="product__Price">${fetchedProduct.price}</div>
+  <div class="product__Count">
+  <div class="product__Counter">
+    <input
+      type="number"
+      disabled
+      class="counter__Display"
+      value="0"
+      style="width: 35px; margin:5px"
+    />
+    <div style="display: flex; flex-direction: column">
+      <button class="counter__Product" onclick="incrementCount(event)"> + </button>
+      <button class="counter__Product"  onclick="decrementCount(event)"> - </button>
+    </div>
+  </div>  
+  `;
+  return product;
+}
 function getManufacturerBox(brand) {
   updateBrandTotalMap(brand);
   const brandTotal = brandTotalMap.get(brand);
@@ -419,8 +419,7 @@ function removeManufacturerBox(brand, id) {
   isBrandCheckedSet.delete(brand);
   brandSet.delete(brand);
 }
-
-function incrementCartCount(id, isPlus) {
+function incrementCartCount(id) {
   const currentProduct = getCurrentProduct(Number(id));
   const { brand, price, count } = currentProduct;
   const currentValue = brandTotalMap.get(brand);
@@ -441,8 +440,8 @@ function incrementCartCount(id, isPlus) {
   updateGrandTotal();
   console.log("+1");
 }
-
 function decrementCartCount(id) {
+  const counterDisplay = document.querySelector(`.counter__Display__${id}`);
   const currentProduct = fetchedProductsMap.get(id);
   const brand = trimWhiteSpace(trimSpecialCharacters(currentProduct.brand));
   const price = currentProduct.price;
@@ -462,7 +461,6 @@ function decrementCartCount(id) {
   cartProducts = [...newCartProducts];
   updateGrandTotal();
 }
-
 //Helpers
 
 function mapToJSON(map) {
