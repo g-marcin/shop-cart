@@ -177,42 +177,14 @@ function ProductCheckboxHandler(id) {
   newTotalDisplay(newBrandTotal, brand);
   isBrandCheckedSet.delete(brand);
   updateGrandTotal();
+  console.log(cartProducts);
 }
-function BrandCheckboxHandler(id) {
-  // if (!brand) {
-  //   return;
-  // }
-  // const currentProduct = getCurrentProduct(parseInt(id));
-  // console.log(currentProduct);
-  // if (!isBrandCheckedSet.has(brand)) {
-  //   console.log("brand checked");
-  //   function clearProductsCheckboxes() {
-  //     const brandCheckboxArray = document.getElementsByClassName(`checkbox__Product__${brand}`);
-  //     for (let productCheckbox of brandCheckboxArray) {
-  //       productCheckbox.checked = false;
-  //     }
-  //   }
-  //   clearProductsCheckboxes();
-  //   let newCartProducts = [...cartProducts];
-  //   newCartProducts = newCartProducts.map((product) => {
-  //     if (product.brand === brand) {
-  //       product.isChecked = true;
-  //     }
-  //   });
-  //   cartProducts = [...newCartProducts];
-  //   isBrandCheckedSet.add(brand);
-  // } else {
-  //   let newCartProducts = [...cartProducts];
-  //   newCartProducts = newCartProducts.map((product) => {
-  //     if (product.brand === brand) {
-  //       product.isChecked = false;
-  //     }
-  //   });
-  //   cartProducts = [...newCartProducts];
-  // }
-  // const newBrandTotal = updateBrandTotalMap(brand);
-  // newTotalDisplay(newBrandTotal, brand);
-  // updateGrandTotal();
+function ManufacturerCheckboxHandler(brand) {
+  if (!isBrandCheckedSet.has(brand)) {
+    setBrandProductsState(brand, true);
+  } else {
+    setBrandProductsState(brand, false);
+  }
 }
 function incrementCount(e, id) {
   const counterDisplay = e.target.parentElement.parentElement.querySelector(".counter__Display");
@@ -301,7 +273,6 @@ function newTotalDisplay(newBrandTotal, brand) {
   newTotalDisplay.className = `total__Manufacturer__${brand}`;
   newTotalDisplay.value = newBrandTotal;
   newTotalDisplay.style = "width:50px;";
-  // wrapperManufacturerTotal.appendChild(newTotalDisplay);
   if (brandCountDisplay) {
     brandCountDisplay.remove();
   }
@@ -362,7 +333,7 @@ function getManufacturerBox(brand) {
   manufacturerBox.className = `wrapper__Manufacturer__${brand}`;
   manufacturerBox.innerHTML = ` 
       <div class="manufacturer__Header">
-        <input type="checkbox" class="checkbox__Manufacturer__${brand}" onclick="BrandCheckboxHandler("${brand}")"  />
+        <input type="checkbox" class="checkbox__Manufacturer__${brand}" onclick="ManufacturerCheckboxHandler('${brand}')"  />
         <div class="manufacturer__Name">${brand}</div>
       </div>
       <div class="manufacturer__Products__${brand} ${brand}">
@@ -484,4 +455,32 @@ function trimSpecialCharacters(string) {
 }
 function getCurrentProduct(id) {
   return cartProducts.filter((product) => product.id === Number(id))[0];
+}
+function clearProductsCheckboxes(brand) {
+  const brandCheckboxArray = document.getElementsByClassName(`checkbox__Product__${brand}`);
+  for (let productCheckbox of brandCheckboxArray) {
+    productCheckbox.checked = false;
+  }
+}
+function setBrandProductsState(brand, areChecked) {
+  let newCartProducts = [...cartProducts];
+  newCartProducts = newCartProducts.map((product) => {
+    if (product.brand === brand) {
+      product.isChecked = areChecked;
+    }
+    return product;
+  });
+  cartProducts = [...newCartProducts];
+
+  if (areChecked) {
+    isBrandCheckedSet.add(brand);
+    clearProductsCheckboxes(brand);
+  } else {
+    isBrandCheckedSet.delete(brand);
+    brandTotalMap.set(brand, 0);
+  }
+  const newBrandTotal = updateBrandTotalMap(brand);
+  brandTotalMap.set(brand, newBrandTotal);
+  newTotalDisplay(newBrandTotal, brand);
+  updateGrandTotal();
 }
