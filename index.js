@@ -37,6 +37,7 @@ window.addEventListener("load", async (e) => {
         isBrandCheckedSet = JSONtoSet(window.localStorage.getItem("isBrandCheckedSetJSON"));
       }
     }
+
     getDataFromLocalStorage();
     const initialBrands = Array.from(brandSet);
     initialBrands.forEach((brand) => {
@@ -51,16 +52,9 @@ window.addEventListener("load", async (e) => {
       const manufacturerBox = document.querySelector(`.${brand}`);
       const manufacturerProduct = getManufacturerProduct(id, brand, title, price, count);
       manufacturerBox.appendChild(manufacturerProduct);
-
-      const productCheckbox = document.querySelector(`.checkbox__Product__${id}`);
-      if (isBrandCheckedSet.has(brand)) {
-        productCheckbox.checked = false;
-      } else {
-        const currentProduct = getCurrentProduct(id);
-        productCheckbox.checked = currentProduct.isChecked;
-      }
+      getProductCheckboxState(id);
     });
-    updateGrandTotal();
+    setGrandTotal();
   }
   initializeCartDisplay();
 });
@@ -105,7 +99,7 @@ function appendFetchedProduct(fetchedProduct) {
       const newBrandTotal = updateBrandTotalMap(brand);
       newTotalDisplay(newBrandTotal, brand);
       isBrandCheckedSet.delete(brand);
-      updateGrandTotal();
+      setGrandTotal();
     };
     product.appendChild(addButton);
   }
@@ -153,19 +147,22 @@ window.addEventListener("unload", (e) => {
 });
 function ProductCheckboxHandler(id) {
   const currentProduct = getCurrentProduct(id);
-  const { brand } = currentProduct;
+  const { brand, price, count, isChecked } = currentProduct;
 
   if (isBrandCheckedSet.has(brand)) {
     setBrandProductsState(brand, false);
+    const manufacturerCheckbox = document.querySelector(`.checkbox__Manufacturer__${brand}`);
+    manufacturerCheckbox.checked = false;
   }
 
   findProductAndApply(id, (product) => {
     product.isChecked = !product.isChecked;
   });
 
+  updateBrandTotal(id, brand, price, count, isChecked);
   const newBrandTotal = updateBrandTotalMap(brand);
   newTotalDisplay(newBrandTotal, brand);
-  updateGrandTotal();
+  setGrandTotal();
 }
 function ManufacturerCheckboxHandler(brand) {
   if (!isBrandCheckedSet.has(brand)) {
@@ -191,6 +188,48 @@ function decrementCount(e, id) {
   }
   counterDisplay.value--;
 }
+function incrementCartCount(id) {
+  const currentProduct = getCurrentProduct(Number(id));
+  const { brand, price, count } = currentProduct;
+  const currentValue = brandTotalMap.get(brand);
+  const newBrandTotal = currentValue + price;
+  if (currentProduct.isChecked === true) {
+    updateBrandTotal(id, brand, price, count, currentProduct.isChecked);
+    updateBrandTotalMap(brand);
+    newTotalDisplay(newBrandTotal, brand);
+  }
+  brandTotalMap.set(brand, newBrandTotal);
+  let newCartProducts = [...cartProducts];
+  newCartProducts.map((product) => {
+    if (Number(id) === product.id) {
+      product.count++;
+    }
+  });
+  cartProducts = [...newCartProducts];
+  setGrandTotal();
+  console.log("+1");
+}
+function decrementCartCount(id) {
+  const counterDisplay = document.querySelector(`.counter__Display__${id}`);
+  const currentProduct = fetchedProductsMap.get(id);
+  const brand = trimWhiteSpace(trimSpecialCharacters(currentProduct.brand));
+  const price = currentProduct.price;
+  const currentValue = brandTotalMap.get(brand);
+  const newBrandTotal = currentValue - price;
+  if (getCurrentProduct(id).isChecked === true) {
+    newTotalDisplay(newBrandTotal, brand);
+    brandTotalMap.set(brand, newBrandTotal);
+  }
+  let newCartProducts = [...cartProducts];
+  newCartProducts = cartProducts.map((product) => {
+    if (Number(id) === product.id) {
+      product.count = counterDisplay.value;
+    }
+    return product;
+  });
+  cartProducts = [...newCartProducts];
+  setGrandTotal();
+}
 function deleteProduct(id) {
   const currentProduct = getCurrentProduct(parseInt(id));
   const { price, count, isChecked } = currentProduct;
@@ -202,6 +241,7 @@ function deleteProduct(id) {
     cartProducts = [...newCartProducts];
     product.remove();
     updateBrandTotalMap(brand);
+    updateBrandTotal(id, brand, price, count, isChecked);
     productSet.delete(id);
     const manufacturerProducts = wrapperManufacturer.querySelector(`.${brand}`);
     if (manufacturerProducts.childNodes.length === 1) {
@@ -213,7 +253,7 @@ function deleteProduct(id) {
   const newBrandTotal = updateBrandTotalMap(brand);
   newTotalDisplay(newBrandTotal, brand);
   isBrandCheckedSet.delete(brand);
-  updateGrandTotal();
+  setGrandTotal();
 }
 function updateBrandTotalMap(brand) {
   const requestedBrandProducts = cartProducts
@@ -246,7 +286,7 @@ function updateBrandTotal(id, brand, price, count, isChecked = true) {
     wrapperManufacturerTotal.appendChild(newDisplay);
   }
 }
-function updateGrandTotal() {
+function setGrandTotal() {
   const arr = Array.from(brandTotalMap, ([_, value]) => ({
     value,
   }));
@@ -378,48 +418,7 @@ function removeManufacturerBox(brand, id) {
   isBrandCheckedSet.delete(brand);
   brandSet.delete(brand);
 }
-function incrementCartCount(id) {
-  const currentProduct = getCurrentProduct(Number(id));
-  const { brand, price, count } = currentProduct;
-  const currentValue = brandTotalMap.get(brand);
-  const newBrandTotal = currentValue + price;
-  if (currentProduct.isChecked === true) {
-    updateBrandTotal(id, brand, price, count, currentProduct.isChecked);
-    updateBrandTotalMap(brand);
-    newTotalDisplay(newBrandTotal, brand);
-  }
-  brandTotalMap.set(brand, newBrandTotal);
-  let newCartProducts = [...cartProducts];
-  newCartProducts.map((product) => {
-    if (Number(id) === product.id) {
-      product.count++;
-    }
-  });
-  cartProducts = [...newCartProducts];
-  updateGrandTotal();
-  console.log("+1");
-}
-function decrementCartCount(id) {
-  const counterDisplay = document.querySelector(`.counter__Display__${id}`);
-  const currentProduct = fetchedProductsMap.get(id);
-  const brand = trimWhiteSpace(trimSpecialCharacters(currentProduct.brand));
-  const price = currentProduct.price;
-  const currentValue = brandTotalMap.get(brand);
-  const newBrandTotal = currentValue - price;
-  if (getCurrentProduct(id).isChecked === true) {
-    newTotalDisplay(newBrandTotal, brand);
-    brandTotalMap.set(brand, newBrandTotal);
-  }
-  let newCartProducts = [...cartProducts];
-  newCartProducts = cartProducts.map((product) => {
-    if (Number(id) === product.id) {
-      product.count = counterDisplay.value;
-    }
-    return product;
-  });
-  cartProducts = [...newCartProducts];
-  updateGrandTotal();
-}
+
 //Helpers
 
 function mapToJSON(map) {
@@ -470,7 +469,7 @@ function setBrandProductsState(brand, areChecked) {
   const newBrandTotal = updateBrandTotalMap(brand);
   brandTotalMap.set(brand, newBrandTotal);
   newTotalDisplay(newBrandTotal, brand);
-  updateGrandTotal();
+  setGrandTotal();
 }
 function findProductAndApply(id, cb) {
   cartProducts.forEach((product) => {
@@ -478,4 +477,14 @@ function findProductAndApply(id, cb) {
       cb(product);
     }
   });
+}
+function getProductCheckboxState(id) {
+  const { brand } = getCurrentProduct(id);
+  const productCheckbox = document.querySelector(`.checkbox__Product__${id}`);
+  if (isBrandCheckedSet.has(brand)) {
+    productCheckbox.checked = false;
+  } else {
+    const currentProduct = getCurrentProduct(id);
+    productCheckbox.checked = currentProduct.isChecked;
+  }
 }
