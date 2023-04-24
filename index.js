@@ -37,10 +37,7 @@ function saveDataToLocalStorage() {
 }
 //Handlers:
 function addToCartHandler(e, id) {
-  console.log(e.target.parentElement.parentElement);
-  const count = Number(
-    e.target.parentElement.parentElement.querySelector(".counter__Display").value
-  );
+  const count = Number(e.target.parentElement.parentElement.querySelector(".counter__Display").value);
   const title = fetchedProductsMap.get(id).title;
   const brand = trimSpecialCharacters(trimWhiteSpace(fetchedProductsMap.get(id).brand));
   const price = Number(fetchedProductsMap.get(id).price);
@@ -101,8 +98,9 @@ function addToCartHandler(e, id) {
     improvedCartProducts = [...newImprovedCartProducts];
   }
   e.target.parentElement.parentElement.querySelector(".counter__Display").value = "0"; //x
+  console.log(getImprovedProduct(id));
   renderCart();
-  console.log(improvedCartProducts);
+  // console.log(improvedCartProducts);
 }
 function ProductCheckboxHandler(id) {
   const currentProduct = getCurrentProduct(id);
@@ -223,6 +221,8 @@ function renderCart() {
   // renderBrandBoxes();
   // renderCartProducts();
   renderImprovedBrandBoxes();
+  // renderCartProducts();
+  renderImprovedCartProducts();
   renderGrandTotal();
 }
 function renderBrandBoxes() {
@@ -254,7 +254,6 @@ function renderImprovedBrandBoxes() {
 
       cartContent.appendChild(manufacturerBox);
     }
-    console.log(improvedProduct.brand);
     return improvedProduct;
   });
   improvedCartProducts = [...newImprovedCartProducts];
@@ -301,7 +300,6 @@ function renderImprovedCartProducts() {
   const productSet = new Set();
   let newImprovedCartProducts = [...improvedCartProducts];
   newImprovedCartProducts = newImprovedCartProducts.map(({ brand, brandProducts, isChecked }) => {
-    //TODO extract id and brand
     let newBrandProducts = [...brandProducts];
     newBrandProducts = newBrandProducts.map((product) => {
       const manufacturerBox = document.querySelector(`.${brand}`);
@@ -385,7 +383,13 @@ function getManufacturerBoxMarkup(brand) {
 }
 function getManufacturerProductMarkup(id) {
   const currentProduct = getCurrentProduct(id);
-  const { title, brand, price, count, isChecked } = currentProduct;
+  const currentImprovedProduct = getImprovedProduct(id);
+  console.log(currentImprovedProduct);
+  // const { title, brand, price, count, isChecked } = currentProduct;
+  const { title, brand, price } = currentImprovedProduct.product;
+  const count = currentImprovedProduct.count;
+  const isChecked = currentImprovedProduct.isChecked;
+
   const manufacturerProduct = document.createElement("div");
   manufacturerProduct.className = `wrapper__Product__Cart__${id}`;
   manufacturerProduct.innerHTML = `
@@ -416,8 +420,12 @@ function getCurrentProduct(id) {
   return cartProducts.filter((product) => product.id === Number(id))[0];
 }
 function getImprovedProduct(id) {
-  const currentProduct = fetchedProductsMap.get(id);
-  currentProduct.brand = trimSpecialCharacters(trimWhiteSpace(currentProduct.brand));
+  let cartProducts = [];
+  let newImprovedCartProducts = [...improvedCartProducts];
+  newImprovedCartProducts = newImprovedCartProducts.map((improvedProduct) => {
+    cartProducts = cartProducts.concat(improvedProduct.brandProducts);
+  });
+  return cartProducts;
 }
 function findProductAndApply(id, cb) {
   cartProducts.forEach((product) => {
@@ -454,9 +462,7 @@ function getBrandTotal(brand) {
 }
 function getGrandTotal() {
   let newCartProducts = [...cartProducts];
-  const grandTotal = newCartProducts
-    .filter((product) => product.isChecked === true)
-    .reduce((acc, val) => acc + val.count * val.price, 0);
+  const grandTotal = newCartProducts.filter((product) => product.isChecked === true).reduce((acc, val) => acc + val.count * val.price, 0);
   return grandTotal;
 }
 function getIsBrandCheckedSet() {
@@ -468,12 +474,8 @@ function getIsBrandCheckedSet() {
   }
   function isBrandChecked(brand) {
     let newCartProducts = [...cartProducts];
-    newCartProducts = newCartProducts
-      .filter((product) => product.brand === brand)
-      .filter((product) => product.isChecked === true);
-    return (
-      newCartProducts.length === cartProducts.filter((product) => product.brand === brand).length
-    );
+    newCartProducts = newCartProducts.filter((product) => product.brand === brand).filter((product) => product.isChecked === true);
+    return newCartProducts.length === cartProducts.filter((product) => product.brand === brand).length;
   }
 
   return isBrandCheckedSet;
