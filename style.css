@@ -232,6 +232,10 @@ main {
   margin: 5px;
 }
 
+.counter__Product {
+  padding: 5px;
+}
+
 .grand__Total {
   width: 100px;
 }
