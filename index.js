@@ -2,33 +2,70 @@ let improvedCartProducts = [];
 window.addEventListener("load", async () => {
   renderShop();
   initializeCartDisplay();
+  function initializeCartDisplay() {
+    getDataFromLocalStorage();
+    renderCart();
+    function getDataFromLocalStorage() {
+      if (window.localStorage.getItem("improvedCartProductsJSON")) {
+        improvedCartProducts = JSON.parse(window.localStorage.getItem("improvedCartProductsJSON"));
+      }
+    }
+  }
+  async function renderShop() {
+    const response = await fetch("https://dummyjson.com/products");
+    const jsonData = await response.json();
+    const { products } = jsonData;
+    products.map((fetchedProduct) => {
+      renderFetchedProduct(fetchedProduct, fetchedProduct.id);
+    });
+    function renderFetchedProduct(fetchedProduct) {
+      const shopContent = document.querySelector(".content__Shop");
+      const product = getFetchedProductMarkup(fetchedProduct);
+      shopContent.appendChild(product);
+      function getFetchedProductMarkup(fetchedProduct) {
+        const product = document.createElement("div");
+        product.className = `wrapper__Product`;
+        product.innerHTML = `
+        <div class="flex product__info">
+        <img class="product__Thumbnail" src="${fetchedProduct.images[0]}" alt = "product_Thumbnail"/>
+        <div class="flex column ">
+        <h3 class="product__Brand__${fetchedProduct.id}">${fetchedProduct.brand}</h3>
+        <h4 class="product__Title__${fetchedProduct.id} ">${fetchedProduct.title}</h4>
+        <div class="product__Description">${fetchedProduct.description}</div>
+        <div class="flex"><div class="product__Price__${fetchedProduct.id}">${fetchedProduct.price}</div>$</div>
+        </div>
+       </div>
+       <div class="product__Controller">
+        <div class="product__Counter">
+          <input
+            type="number"
+            disabled
+            class="counter__Display"
+            value="0"
+          />
+          <div>
+            <button class="counter__Product" onclick="incrementCountHandler(event)">+</button>
+            <button class="counter__Product"  onclick="decrementCountHandler(event)">-</button>
+          </div>
+          </div>  
+          <button class="button__DisplayAddToCartHandlerButton" onClick='addToCartHandler(event,${fetchedProduct.id})'><i class="fa-solid fa-cart-plus fa-xl"></i></button>
+          </div>
+          `;
+        return product;
+      }
+    }
+  }
 });
 window.addEventListener("unload", (e) => {
   saveDataToLocalStorage();
+  function saveDataToLocalStorage() {
+    const improvedCartProductsJSON = JSON.stringify(improvedCartProducts);
+    window.localStorage.clear();
+    window.localStorage.setItem("improvedCartProductsJSON", improvedCartProductsJSON);
+  }
 });
 //load/save:
-function initializeCartDisplay() {
-  getDataFromLocalStorage();
-  renderCart();
-}
-function getDataFromLocalStorage() {
-  if (window.localStorage.getItem("cartProductsJSON")) {
-    cartProducts = JSON.parse(window.localStorage.getItem("cartProductsJSON"));
-  }
-}
-async function renderShop() {
-  const response = await fetch("https://dummyjson.com/products");
-  const jsonData = await response.json();
-  const { products } = jsonData;
-  products.map((fetchedProduct) => {
-    renderFetchedProduct(fetchedProduct, fetchedProduct.id);
-  });
-}
-function saveDataToLocalStorage() {
-  const cartProductsJSON = JSON.stringify(cartProducts);
-  window.localStorage.clear();
-  window.localStorage.setItem("cartProductsJSON", cartProductsJSON);
-}
+
 //Handlers:
 function addToCartHandler(e, id) {
   console.log(getShopProductData(id));
@@ -213,153 +250,123 @@ function deleteProductHandler(id) {
   }
 }
 //Renderers:
-function renderFetchedProduct(fetchedProduct) {
-  const shopContent = document.querySelector(".content__Shop");
-  const product = getFetchedProductMarkup(fetchedProduct);
-  shopContent.appendChild(product);
-}
+
 function renderCart() {
   renderImprovedBrandBoxes();
   renderImprovedCartProducts();
   renderGrandTotal();
-}
-function renderImprovedBrandBoxes() {
-  const cartContent = document.querySelector(".content__Cart");
-  cartContent.innerHTML = "";
-  const brandSet = new Set();
+  function renderImprovedBrandBoxes() {
+    const cartContent = document.querySelector(".content__Cart");
+    cartContent.innerHTML = "";
+    const brandSet = new Set();
 
-  let newImprovedCartProducts = [...improvedCartProducts];
-  newImprovedCartProducts = newImprovedCartProducts.map((improvedProduct) => {
-    const manufacturerBox = getManufacturerBoxMarkup(improvedProduct.brand);
-    if (!brandSet.has(improvedProduct.brand)) {
-      brandSet.add(improvedProduct.brand);
-      cartContent.appendChild(manufacturerBox);
+    let newImprovedCartProducts = [...improvedCartProducts];
+    newImprovedCartProducts = newImprovedCartProducts.map((improvedProduct) => {
+      const manufacturerBox = getManufacturerBoxMarkup(improvedProduct.brand);
+      if (!brandSet.has(improvedProduct.brand)) {
+        brandSet.add(improvedProduct.brand);
+        cartContent.appendChild(manufacturerBox);
+      }
+      return improvedProduct;
+    });
+    improvedCartProducts = [...newImprovedCartProducts];
+    function getManufacturerBoxMarkup(brand) {
+      const isBrandCheckedSet = getImprovedIsBrandCheckedSet();
+      const isChecked = isBrandCheckedSet.has(brand) ? "checked" : "";
+      const brandTotal = getImprovedBrandTotal(brand);
+      const manufacturerBox = document.createElement("div");
+      manufacturerBox.className = `wrapper__Manufacturer__${brand}`;
+      manufacturerBox.innerHTML = ` 
+          <div class="manufacturer__Header">
+            <input type="checkbox" class="checkbox__Manufacturer__${brand}" onclick="brandCheckboxHandler('${brand}')" ${isChecked}/>
+            <div class="manufacturer__Name">${brand}</div>
+          </div>
+          <div class="manufacturer__Products__${brand} ${brand}">
+         
+          </div>
+          <div class="manufacturer__Total__${brand} manufacturer__Total" >
+            Total:<input disabled class="total__Manufacturer total__Manufacturer__${brand}" value=${brandTotal} />
+          </div>
+        `;
+      return manufacturerBox;
     }
-    return improvedProduct;
-  });
-  improvedCartProducts = [...newImprovedCartProducts];
-}
-function renderImprovedCartProducts() {
-  const productSet = new Set();
-  let newImprovedCartProducts = [...improvedCartProducts];
-  newImprovedCartProducts = newImprovedCartProducts.map(({ brand, brandProducts, isChecked }) => {
-    let newBrandProducts = [...brandProducts];
-    newBrandProducts = newBrandProducts.map((brandProduct) => {
-      const manufacturerBox = document.querySelector(`.${brand}`);
-      const manufacturerProduct = getManufacturerProductMarkup(brandProduct.product.id);
-      if (!productSet.has(brandProduct.product.id)) {
-        manufacturerBox.appendChild(manufacturerProduct);
-        productSet.add(brandProduct.product.id);
-      } else {
-        let oldProduct = document.querySelector(
-          `.wrapper__Product__Cart__${brandProduct.product.id}`
-        );
-        if (oldProduct) {
-          oldProduct.remove();
-        }
-        if (manufacturerBox) {
+  }
+  function renderImprovedCartProducts() {
+    const productSet = new Set();
+    let newImprovedCartProducts = [...improvedCartProducts];
+    newImprovedCartProducts = newImprovedCartProducts.map(({ brand, brandProducts, isChecked }) => {
+      let newBrandProducts = [...brandProducts];
+      newBrandProducts = newBrandProducts.map((brandProduct) => {
+        const manufacturerBox = document.querySelector(`.${brand}`);
+        const manufacturerProduct = getManufacturerProductMarkup(brandProduct.product.id);
+        if (!productSet.has(brandProduct.product.id)) {
           manufacturerBox.appendChild(manufacturerProduct);
           productSet.add(brandProduct.product.id);
+        } else {
+          let oldProduct = document.querySelector(
+            `.wrapper__Product__Cart__${brandProduct.product.id}`
+          );
+          if (oldProduct) {
+            oldProduct.remove();
+          }
+          if (manufacturerBox) {
+            manufacturerBox.appendChild(manufacturerProduct);
+            productSet.add(brandProduct.product.id);
+          }
         }
-      }
-      return brandProduct;
+        return brandProduct;
+      });
     });
-  });
+    function getManufacturerProductMarkup(id) {
+      const currentImprovedProduct = getImprovedProduct(id);
+      const {
+        product: { title, brand, price },
+        count,
+        isChecked,
+      } = currentImprovedProduct;
+      const manufacturerProduct = document.createElement("div");
+      manufacturerProduct.className = `wrapper__Product__Cart__${id}`;
+      manufacturerProduct.innerHTML = `
+        <div class=product__Cart__Data >
+          <label for=""> <input type="checkbox" class="checkbox__Product__${id} checkbox__Product__${brand}"  onclick="productCheckboxHandler(${id})" ${
+        isChecked ? "checked" : ""
+      }  />${title}</label>
+          <div>${price}</div>
+          <div class="product__Counter" >
+          <form>
+          <input
+            type="number"
+            min="1"
+            class="counter__Display counter__Display__${id}"
+            value=${count}
+          />
+          </form>
+          <div class="wrapper__Counter">
+            <button class="counter__Cart" onclick="incrementCountHandler(event,${id})">+</button>
+            <button class="counter__Cart" onclick="decrementCountHandler(event,${id})">-</button>
+          </div>
+        </div>
+        <button class="button__Delete" onclick="deleteProductHandler(${id})"><i class="fa-solid fa-trash fa-lg"></i></button>
+        </div>
+      `;
+      return manufacturerProduct;
+    }
+  }
+  function renderGrandTotal() {
+    const grandTotalValue = getImprovedGrandTotal();
+    const wrapperCart = document.querySelector(".wrapper__Cart");
+    const wrapperGrandTotal = document.querySelector(".wrapper__Grand__Total");
+    const newWrapperGrandTotal = document.createElement("div");
+    newWrapperGrandTotal.className = "wrapper__Grand__Total";
+    newWrapperGrandTotal.innerHTML = `<label for="">
+           Grand Total:
+            <input class="grand__Total" disabled type="number" value=${grandTotalValue}  />
+           </label>`;
+    wrapperGrandTotal.remove();
+    wrapperCart.appendChild(newWrapperGrandTotal);
+  }
 }
-function renderGrandTotal() {
-  const grandTotalValue = getImprovedGrandTotal();
-  const wrapperCart = document.querySelector(".wrapper__Cart");
-  const wrapperGrandTotal = document.querySelector(".wrapper__Grand__Total");
-  const newWrapperGrandTotal = document.createElement("div");
-  newWrapperGrandTotal.className = "wrapper__Grand__Total";
-  newWrapperGrandTotal.innerHTML = `<label for="">
-         Grand Total:
-          <input class="grand__Total" disabled type="number" value=${grandTotalValue}  />
-         </label>`;
-  wrapperGrandTotal.remove();
-  wrapperCart.appendChild(newWrapperGrandTotal);
-}
-function getFetchedProductMarkup(fetchedProduct) {
-  const product = document.createElement("div");
-  product.className = `wrapper__Product`;
-  product.innerHTML = `
-  <div class="product__Id">${fetchedProduct.id}</div>
-  <img class="product__Thumbnail" src="${fetchedProduct.images[0]}" alt = "product_Thumbnail"/>
-  <div class="product__Title__${fetchedProduct.id} ">${fetchedProduct.title}</div>
-  <div class="product__Brand__${fetchedProduct.id}">${fetchedProduct.brand}</div>
-  <div class="product__Description">${fetchedProduct.description}</div>
-  <div class="product__Price__${fetchedProduct.id}">${fetchedProduct.price}</div>
-  <div class="product__Count">
-  <div class="product__Counter">
-    <input
-      type="number"
-      disabled
-      class="counter__Display"
-      value="0"
-    />
-    <div>
-      <button class="counter__Product" onclick="incrementCountHandler(event)">+</button>
-      <button class="counter__Product"  onclick="decrementCountHandler(event)">-</button>
-    </div>
-    </div>  
-    <button class="button__DisplayAddToCartHandlerButton" onClick='addToCartHandler(event,${fetchedProduct.id})'><i class="fa-solid fa-cart-plus fa-xl"></i></button>
-  `;
-  return product;
-}
-function getManufacturerBoxMarkup(brand) {
-  const isBrandCheckedSet = getImprovedIsBrandCheckedSet();
-  const isChecked = isBrandCheckedSet.has(brand) ? "checked" : "";
-  const brandTotal = getImprovedBrandTotal(brand);
-  const manufacturerBox = document.createElement("div");
-  manufacturerBox.className = `wrapper__Manufacturer__${brand}`;
-  manufacturerBox.innerHTML = ` 
-      <div class="manufacturer__Header">
-        <input type="checkbox" class="checkbox__Manufacturer__${brand}" onclick="brandCheckboxHandler('${brand}')" ${isChecked}/>
-        <div class="manufacturer__Name">${brand}</div>
-      </div>
-      <div class="manufacturer__Products__${brand} ${brand}">
-     
-      </div>
-      <div class="manufacturer__Total__${brand} manufacturer__Total" >
-        Total:<input disabled class="total__Manufacturer total__Manufacturer__${brand}" value=${brandTotal} />
-      </div>
-    `;
-  return manufacturerBox;
-}
-function getManufacturerProductMarkup(id) {
-  const currentImprovedProduct = getImprovedProduct(id);
-  const {
-    product: { title, brand, price },
-    count,
-    isChecked,
-  } = currentImprovedProduct;
-  const manufacturerProduct = document.createElement("div");
-  manufacturerProduct.className = `wrapper__Product__Cart__${id}`;
-  manufacturerProduct.innerHTML = `
-    <div class=product__Cart__Data >
-      <label for=""> <input type="checkbox" class="checkbox__Product__${id} checkbox__Product__${brand}"  onclick="productCheckboxHandler(${id})" ${
-    isChecked ? "checked" : ""
-  }  />${title}</label>
-      <div>${price}</div>
-      <div class="product__Counter" >
-      <form>
-      <input
-        type="number"
-        min="1"
-        class="counter__Display counter__Display__${id}"
-        value=${count}
-      />
-      </form>
-      <div class="wrapper__Counter">
-        <button class="counter__Cart" onclick="incrementCountHandler(event,${id})">+</button>
-        <button class="counter__Cart" onclick="decrementCountHandler(event,${id})">-</button>
-      </div>
-    </div>
-    <button class="button__Delete" onclick="deleteProductHandler(${id})"><i class="fa-solid fa-trash fa-lg"></i></button>
-    </div>
-  `;
-  return manufacturerProduct;
-}
+
 //Helpers:
 function getImprovedProduct(id) {
   let cartProducts = [];

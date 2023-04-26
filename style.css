@@ -52,6 +52,21 @@
   font-family: Arial, Helvetica, sans-serif;
 }
 
+.flex {
+  display: flex;
+  /* justify-content: space-around;
+  justify-self: end; */
+}
+.product__Controller {
+  display: flex;
+  justify-content: space-around;
+  justify-self: end;
+}
+
+.column {
+  flex-direction: column;
+}
+
 button {
   background: none;
   padding: 0px;
@@ -75,15 +90,17 @@ body {
 article,
 h1,
 h2,
-h3,
 h4,
 p,
 section,
 body,
 main,
 a {
-  margin: 0px !important;
+  margin: 0px;
   padding: 0px;
+}
+
+h3 {
 }
 
 header {
@@ -181,25 +198,38 @@ main {
 .content__Shop {
   flex: 15;
   padding: 15px;
-
+  flex-direction: row;
   display: flex;
   flex-wrap: wrap;
   gap: 15px;
   overflow: scroll;
 }
 
+.wrapper__Product {
+  border: 1px solid black;
+  max-width: 350px;
+  padding: 10px;
+  min-height: fit-content;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  justify-content: space-between;
+}
+
+.product__info {
+  gap: 10px;
+}
+
+.product__Thumbnail {
+  width: 100px;
+  height: 100px;
+}
 .content__Cart {
   flex: 14;
   padding: 15px;
   overflow: scroll;
   flex-direction: column;
   gap: 15px;
-}
-
-.product__Thumbnail {
-  float: left;
-  width: 100px;
-  height: 100px;
 }
 
 .wrapper__Grand__Total {
@@ -213,19 +243,6 @@ main {
 
 .grand__Total {
   width: 100px;
-}
-
-.wrapper__Product {
-  border: 1px solid black;
-  max-width: 300px;
-  padding: 5px;
-  max-height: fit-content;
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-}
-
-.product__Count {
 }
 
 .button__AddToCart {
@@ -282,6 +299,7 @@ main {
 }
 .manufacturer__Total {
   display: flex;
+  align-items: center;
 }
 
 .wrapper__Product__Cart {
