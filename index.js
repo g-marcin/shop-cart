@@ -1,6 +1,4 @@
-let fetchedProductsMap = new Map();
 let improvedCartProducts = [];
-
 window.addEventListener("load", async () => {
   renderShop();
   initializeCartDisplay();
@@ -24,7 +22,6 @@ async function renderShop() {
   const { products } = jsonData;
   products.map((fetchedProduct) => {
     renderFetchedProduct(fetchedProduct, fetchedProduct.id);
-    fetchedProductsMap.set(fetchedProduct.id, fetchedProduct);
   });
 }
 function saveDataToLocalStorage() {
@@ -34,17 +31,16 @@ function saveDataToLocalStorage() {
 }
 //Handlers:
 function addToCartHandler(e, id) {
+  console.log(getShopProductData(id));
+  const { title, brand, price } = getShopProductData(id);
   const count = Number(
     e.target.parentElement.parentElement.querySelector(".counter__Display").value
   );
-  const title = fetchedProductsMap.get(id).title;
-  const brand = trimSpecialCharacters(trimWhiteSpace(fetchedProductsMap.get(id).brand));
-  const price = Number(fetchedProductsMap.get(id).price);
   const brandSet = getImprovedBrandSet();
   if (count === 0) {
     return;
   }
-  const findProduct = getImprovedProduct(id); //x
+  const findProduct = getImprovedProduct(id);
   if (!findProduct) {
     if (!brandSet.has(brand)) {
       pushNewBrandGroup();
@@ -189,7 +185,6 @@ function decrementCountHandler(e, id) {
     renderCart();
   }
 }
-//TODO disable negative count values
 function deleteProductHandler(id) {
   let newImprovedCartProducts = [...improvedCartProducts];
   newImprovedCartProducts = newImprovedCartProducts
@@ -290,10 +285,10 @@ function getFetchedProductMarkup(fetchedProduct) {
   product.innerHTML = `
   <div class="product__Id">${fetchedProduct.id}</div>
   <img class="product__Thumbnail" src="${fetchedProduct.images[0]}" alt = "product_Thumbnail"/>
-  <div class="product__Title">${fetchedProduct.title}</div>
-  <div class="product__Brand">${fetchedProduct.brand}</div>
+  <div class="product__Title__${fetchedProduct.id} ">${fetchedProduct.title}</div>
+  <div class="product__Brand__${fetchedProduct.id}">${fetchedProduct.brand}</div>
   <div class="product__Description">${fetchedProduct.description}</div>
-  <div class="product__Price">${fetchedProduct.price}</div>
+  <div class="product__Price__${fetchedProduct.id}">${fetchedProduct.price}</div>
   <div class="product__Count">
   <div class="product__Counter">
     <input
@@ -444,4 +439,12 @@ function trimSpecialCharacters(string) {
 }
 function allAreTrue(arr) {
   return arr.every((element) => element === true);
+}
+function getShopProductData(id) {
+  const title = document.querySelector(`.product__Title__${id}`).innerText;
+  const brand = trimSpecialCharacters(
+    trimWhiteSpace(document.querySelector(`.product__Brand__${id}`).innerText)
+  );
+  const price = Number(document.querySelector(`.product__Price__${id}`).innerText);
+  return { title: title, brand: brand, price: price };
 }
