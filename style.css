@@ -36,6 +36,17 @@
 .Hind-Medium {
   font-family: Hind-Medium;
 }
+.weight600 {
+  font-weight: 600;
+}
+.separator-5 {
+  margin: auto;
+  min-width: 5vw;
+}
+.separator-3 {
+  margin: auto;
+  min-width: 3vw;
+}
 
 * {
   font-family: Arial, Helvetica, sans-serif;
@@ -200,6 +211,10 @@ main {
   flex: 1;
 }
 
+.grand__Total {
+  width: 100px;
+}
+
 .wrapper__Product {
   border: 1px solid black;
   max-width: 300px;
@@ -325,6 +340,10 @@ main {
   justify-content: space-evenly;
   gap: 15px;
   font-size: 21px;
+}
+
+.opaque {
+  opacity: 0.8;
 }
 
 a {
