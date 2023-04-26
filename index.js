@@ -29,10 +29,8 @@ async function renderShop() {
   });
 }
 function saveDataToLocalStorage() {
-  const fetchedProductsMapJSON = mapToJSON(fetchedProductsMap);
   const cartProductsJSON = JSON.stringify(cartProducts);
   window.localStorage.clear();
-  window.localStorage.setItem("fetchedProductsMapJSON", fetchedProductsMapJSON);
   window.localStorage.setItem("cartProductsJSON", cartProductsJSON);
 }
 //Handlers:
@@ -43,48 +41,48 @@ function addToCartHandler(e, id) {
   const title = fetchedProductsMap.get(id).title;
   const brand = trimSpecialCharacters(trimWhiteSpace(fetchedProductsMap.get(id).brand));
   const price = Number(fetchedProductsMap.get(id).price);
-  const brandSet = getBrandSet();
-  const newCartProducts = [...cartProducts];
+  const brandSet = getImprovedBrandSet();
   if (count === 0) {
     return;
   }
-  const findId = newCartProducts.filter((product) => product.id === Number(id)); //x
-  if (findId.length === 0) {
-    cartProducts.push({
-      id: id,
-      price: price,
-      title: title,
-      brand: brand,
-      count: count,
-      isChecked: true,
-    });
+  const findProduct = getImprovedProduct(id); //x
+  if (!findProduct) {
     if (!brandSet.has(brand)) {
-      improvedCartProducts.push({
-        brand: brand,
-        isChecked: true,
-        brandProducts: [
-          {
-            product: { id: id, price: price, title: title, brand: brand },
-            isChecked: true,
-            count: count,
-          },
-        ],
-      });
-    } else {
-      let newImprovedCartProducts = [...improvedCartProducts];
-      newImprovedCartProducts = newImprovedCartProducts.map((group) => {
-        if (group.brand === brand) {
-          newBrandProducts = [...group.brandProducts];
-          group.brandProducts.push({
-            product: { id: id, price: price, title: title, brand: brand },
-            isChecked: true,
-            count: count,
-          });
-        }
-      });
+      pushNewBrandGroup();
     }
-  } else {
-    cartProducts[cartProducts.indexOf(findId[0])].count += count;
+    if (brandSet.has(brand)) {
+      updateExistingBrandGroup();
+    }
+  }
+  if (findProduct) {
+    updateProductCount();
+  }
+  function pushNewBrandGroup() {
+    improvedCartProducts.push({
+      brand: brand,
+      isChecked: true,
+      brandProducts: [
+        {
+          product: { id: id, price: price, title: title, brand: brand },
+          isChecked: true,
+          count: count,
+        },
+      ],
+    });
+  }
+  function updateExistingBrandGroup() {
+    let newImprovedCartProducts = [...improvedCartProducts];
+    newImprovedCartProducts = newImprovedCartProducts.map((brandGroup) => {
+      if (brandGroup.brand === brand) {
+        brandGroup.brandProducts.push({
+          product: { id: id, price: price, title: title, brand: brand },
+          isChecked: true,
+          count: count,
+        });
+      }
+    });
+  }
+  function updateProductCount() {
     let newImprovedCartProducts = [...improvedCartProducts];
     newImprovedCartProducts = newImprovedCartProducts.map((brandGroup) => {
       let newBrandProducts = [...brandGroup.brandProducts];
@@ -99,58 +97,51 @@ function addToCartHandler(e, id) {
     });
     improvedCartProducts = [...newImprovedCartProducts];
   }
-  e.target.parentElement.parentElement.querySelector(".counter__Display").value = "0"; //x
-  console.log(getImprovedProduct(id));
-  renderCart();
-  // console.log(improvedCartProducts);
-}
-function ProductCheckboxHandler(id) {
-  const currentImprovedProduct = getImprovedProduct(id);
-  const {
-    product: { title, brand, price },
-    count,
-    isChecked,
-  } = currentImprovedProduct;
-  const isBrandCheckedSet = getIsBrandCheckedSet();
-  if (isBrandCheckedSet.has(brand)) {
-    setBrandProductsState(brand, false);
-    const manufacturerCheckbox = document.querySelector(`.checkbox__Manufacturer__${brand}`);
-    manufacturerCheckbox.checked = false;
+  function resetCounterDisplay() {
+    e.target.parentElement.parentElement.querySelector(".counter__Display").value = "0"; //x
   }
-  findProductAndApply(id, (product) => {
-    isChecked = !isChecked;
+  resetCounterDisplay();
+  renderCart();
+}
+function productCheckboxHandler(id) {
+  const isCheckedArray = [];
+  const currentProduct = getImprovedProduct(id);
+  const {
+    product: { brand },
+  } = currentProduct;
+  let newImprovedCartProducts = [...improvedCartProducts];
+  newImprovedCartProducts = newImprovedCartProducts.map((brandGroup) => {
+    let newBrandProducts = [...brandGroup.brandProducts];
+    newBrandProducts = newBrandProducts.map((brandProduct) => {
+      if (brandProduct.product.id === id) {
+        brandProduct.isChecked = !brandProduct.isChecked;
+      }
+      if (brandGroup.brand === brand) {
+        brandGroup.isChecked = false;
+      }
+      isCheckedArray.push(brandProduct.isChecked);
+      return brandProduct;
+    });
+    if (allAreTrue(isCheckedArray)) {
+      brandGroup.isChecked = true;
+    }
+    return brandGroup;
   });
 
+  improvedCartProducts = [...newImprovedCartProducts];
   renderCart();
 }
-function BrandCheckboxHandler(brand) {
-  const isBrandCheckedSet = getIsBrandCheckedSet();
-  if (!isBrandCheckedSet.has(brand)) {
-    setBrandProductsState(brand, true);
-    setProductCheckboxes(brand, true);
-  } else {
-    setBrandProductsState(brand, false);
-    setProductCheckboxes(brand, false);
-  }
-  renderCart();
-  function setProductCheckboxes(brand, areChecked) {
-    const brandCheckboxArray = document.getElementsByClassName(`checkbox__Product__${brand}`);
-    for (let productCheckbox of brandCheckboxArray) {
-      productCheckbox.checked = areChecked;
+function brandCheckboxHandler(brand) {
+  let newImprovedCartProducts = [...improvedCartProducts];
+  newImprovedCartProducts = newImprovedCartProducts.map((brandGroup) => {
+    if (brandGroup.brand === brand) {
+      brandGroup.isChecked = !brandGroup.isChecked;
+      brandGroup.brandProducts.map((brandProduct) => {
+        brandProduct.isChecked = brandGroup.isChecked;
+      });
     }
-  }
-  function setBrandProductsState(brand, areChecked) {
-    let newCartProducts = [...cartProducts];
-    newCartProducts = newCartProducts.map((product) => {
-      if (product.brand === brand) {
-        product.isChecked = areChecked;
-      }
-      return product;
-    });
-    cartProducts = [...newCartProducts];
-
-    renderCart();
-  }
+  });
+  renderCart();
 }
 function incrementCountHandler(e, id) {
   const counterDisplay = e.target.parentElement.parentElement.querySelector(".counter__Display");
@@ -181,13 +172,6 @@ function decrementCountHandler(e, id) {
     decrementCartCount(id);
   }
   function decrementCartCount(id) {
-    const counterDisplay = document.querySelector(`.counter__Display__${id}`);
-    const currentImprovedProduct = getImprovedProduct(id);
-    const {
-      product: { title, brand, price },
-      count,
-      isChecked,
-    } = currentImprovedProduct;
     let newImprovedCartProducts = [...improvedCartProducts];
     newImprovedCartProducts = newImprovedCartProducts.map((outerProduct) => {
       let newBrandProducts = [...outerProduct.brandProducts];
@@ -200,32 +184,35 @@ function decrementCountHandler(e, id) {
       return outerProduct;
     });
     improvedCartProducts = [...newImprovedCartProducts];
-    console.log(getImprovedGrandTotal());
     renderCart();
   }
 }
-function deleteProduct(id) {
-  const currentImprovedProduct = getImprovedProduct(id);
-  const {
-    product: { title, brand, price },
-    count,
-    isChecked,
-  } = currentImprovedProduct;
-  const product = document.querySelector(`.wrapper__Product__Cart__${id}`);
-  const productSet = getProductSet();
-  if (productSet.has(id)) {
-    const newCartProducts = cartProducts.filter((product) => product.id !== Number(id));
-    cartProducts = [...newCartProducts];
-    product.remove();
-    if (cartProducts.filter((product) => product.brand === brand).length === 0) {
-      removeManufacturerBox(brand, id);
-    }
-  }
+//TODO disable negative count values
+function deleteProductHandler(id) {
+  let newImprovedCartProducts = [...improvedCartProducts];
+  newImprovedCartProducts = newImprovedCartProducts
+    .map((brandGroup) => {
+      brandGroup.brandProducts = brandGroup.brandProducts.filter(
+        (brandProduct) => brandProduct.product.id !== id
+      );
+      if (brandGroup.brandProducts.length === 0) {
+        let newImprovedCartProducts = [...improvedCartProducts];
+        newImprovedCartProducts = newImprovedCartProducts.filter((brandGroup) => {});
+      }
+      return brandGroup;
+    })
+    .filter((brandGroup) => brandGroup.brandProducts.length !== 0);
+
+  improvedCartProducts = [...newImprovedCartProducts];
   renderCart();
 
   function removeManufacturerBox(brand) {
     const wrapperManufacturer = document.querySelector(`.wrapper__Manufacturer__${brand}`);
     wrapperManufacturer.remove();
+  }
+  function removeProduct(brand) {
+    const product = document.querySelector(`.wrapper__Product__Cart__${id}`);
+    product.remove();
   }
 }
 //Renderers:
@@ -235,10 +222,7 @@ function renderFetchedProduct(fetchedProduct) {
   shopContent.appendChild(product);
 }
 function renderCart() {
-  // renderBrandBoxes();
-  // renderCartProducts();
   renderImprovedBrandBoxes();
-  // renderCartProducts();
   renderImprovedCartProducts();
   renderGrandTotal();
 }
@@ -257,7 +241,6 @@ function renderBrandBoxes() {
   });
   cartProducts = [...newCartProducts];
 }
-
 function renderImprovedBrandBoxes() {
   const cartContent = document.querySelector(".content__Cart");
   cartContent.innerHTML = "";
@@ -268,14 +251,12 @@ function renderImprovedBrandBoxes() {
     const manufacturerBox = getManufacturerBoxMarkup(improvedProduct.brand);
     if (!brandSet.has(improvedProduct.brand)) {
       brandSet.add(improvedProduct.brand);
-
       cartContent.appendChild(manufacturerBox);
     }
     return improvedProduct;
   });
   improvedCartProducts = [...newImprovedCartProducts];
 }
-
 function renderCartProducts() {
   const productSet = new Set();
   let newCartProducts = [...cartProducts];
@@ -296,26 +277,6 @@ function renderCartProducts() {
       }
     }
     cartProducts = [...newCartProducts];
-
-    function updateCheckboxState() {
-      const currentImprovedProduct = getImprovedProduct(id);
-      const {
-        product: { title, brand, price },
-        count,
-        isChecked,
-      } = currentImprovedProduct;
-      const currentCheckbox = document.querySelector(`.checkbox__Product__${id}`);
-      if (!currentCheckbox) {
-        return;
-      }
-      const isBrandCheckedSet = getIsBrandCheckedSet();
-      if (!isBrandCheckedSet.has(brand)) {
-        currentCheckbox.checked = currentImprovedProduct.isChecked;
-      } else {
-        currentCheckbox.checked = false;
-      }
-    }
-    updateCheckboxState();
   });
 }
 function renderImprovedCartProducts() {
@@ -386,14 +347,14 @@ function getFetchedProductMarkup(fetchedProduct) {
   return product;
 }
 function getManufacturerBoxMarkup(brand) {
-  const isBrandCheckedSet = getIsBrandCheckedSet();
+  const isBrandCheckedSet = getImprovedIsBrandCheckedSet();
   const isChecked = isBrandCheckedSet.has(brand) ? "checked" : "";
   const brandTotal = getImprovedBrandTotal(brand);
   const manufacturerBox = document.createElement("div");
   manufacturerBox.className = `wrapper__Manufacturer__${brand}`;
   manufacturerBox.innerHTML = ` 
       <div class="manufacturer__Header">
-        <input type="checkbox" class="checkbox__Manufacturer__${brand}" onclick="BrandCheckboxHandler('${brand}')" ${isChecked}/>
+        <input type="checkbox" class="checkbox__Manufacturer__${brand}" onclick="brandCheckboxHandler('${brand}')" ${isChecked}/>
         <div class="manufacturer__Name">${brand}</div>
       </div>
       <div class="manufacturer__Products__${brand} ${brand}">
@@ -416,7 +377,7 @@ function getManufacturerProductMarkup(id) {
   manufacturerProduct.className = `wrapper__Product__Cart__${id}`;
   manufacturerProduct.innerHTML = `
     <div class=product__Cart__Data >
-      <label for=""> <input type="checkbox" class="checkbox__Product__${id} checkbox__Product__${brand}"  onclick="ProductCheckboxHandler(${id})" ${
+      <label for=""> <input type="checkbox" class="checkbox__Product__${id} checkbox__Product__${brand}"  onclick="productCheckboxHandler(${id})" ${
     isChecked ? "checked" : ""
   }  />${title}</label>
       <div>${price}</div>
@@ -433,7 +394,7 @@ function getManufacturerProductMarkup(id) {
         <button class="counter__Cart" onclick="decrementCountHandler(event,${id})">-</button>
       </div>
     </div>
-    <button class="button__Delete" onclick="deleteProduct(${id})"><i class="fa-solid fa-trash fa-lg"></i></button>
+    <button class="button__Delete" onclick="deleteProductHandler(${id})"><i class="fa-solid fa-trash fa-lg"></i></button>
     </div>
   `;
   return manufacturerProduct;
@@ -462,6 +423,14 @@ function getBrandSet() {
   }
   return brandSet;
 }
+function getImprovedBrandSet() {
+  const brandSet = new Set();
+  let newImprovedCartProducts = [...improvedCartProducts];
+  newImprovedCartProducts = newImprovedCartProducts.map((brandGroup) => {
+    brandSet.add(brandGroup.brand);
+  });
+  return brandSet;
+}
 function getProductSet() {
   const productSet = new Set();
   if (cartProducts.length === 0) {
@@ -470,6 +439,17 @@ function getProductSet() {
   let newCartProducts = [...cartProducts];
   newCartProducts = newCartProducts.map((product) => {
     productSet.add(product.id);
+  });
+  return productSet;
+}
+function getImprovedProductSet() {
+  const productSet = new Set();
+  let newImprovedCartProducts = [...improvedCartProducts];
+  newImprovedCartProducts = newImprovedCartProducts.map((brandGroup) => {
+    let newBrandProducts = [...brandGroup.brandProducts];
+    newBrandProducts = newBrandProducts.map((brandProduct) => {
+      productSet.add(brandProduct.product.id);
+    });
   });
   return productSet;
 }
@@ -483,20 +463,22 @@ function getBrandTotal(brand) {
 }
 function getImprovedBrandTotal(brand) {
   let brandTotalArray = [];
+  let brandTotal = 0;
   let newImprovedCartProducts = [...improvedCartProducts];
   newImprovedCartProducts = newImprovedCartProducts.map((brandGroup) => {
     if (brandGroup.brand === brand) {
       let newBrandProducts = [...brandGroup.brandProducts];
-      newBrandProducts.map((brandProduct) => {
-        const totalProduct = brandProduct.product.price * brandProduct.count;
-        brandTotalArray.push(totalProduct);
-      });
+      newBrandProducts
+        .filter((brandProduct) => brandProduct.isChecked === true)
+        .map((brandProduct) => {
+          const totalProduct = brandProduct.product.price * brandProduct.count;
+          brandTotalArray.push(totalProduct);
+        });
     }
   });
-  const brandTotal = brandTotalArray.reduce(
-    (brandTotal, productTotal) => brandTotal + productTotal
-  );
-  console.log(brandTotal);
+  if (brandTotalArray.length !== 0) {
+    brandTotal = brandTotalArray.reduce((brandTotal, productTotal) => brandTotal + productTotal, 0);
+  }
   return brandTotal;
 }
 function getGrandTotal() {
@@ -537,9 +519,22 @@ function getIsBrandCheckedSet() {
 
   return isBrandCheckedSet;
 }
+function getImprovedIsBrandCheckedSet() {
+  const isBrandCheckedSet = new Set();
+  let newImprovedCartProducts = [...improvedCartProducts];
+  newImprovedCartProducts = newImprovedCartProducts.map((brandGroup) => {
+    if (brandGroup.isChecked === true) {
+      isBrandCheckedSet.add(brandGroup.brand);
+    }
+  });
+  return isBrandCheckedSet;
+}
 function trimWhiteSpace(string) {
   return string.replace(/\s/g, "");
 }
 function trimSpecialCharacters(string) {
   return string.replace(/^a-zA-Z0-9 ]/g, "").replace(/[&-']/g, "");
+}
+function allAreTrue(arr) {
+  return arr.every((element) => element === true);
 }

@@ -20,9 +20,9 @@ cartProducts = [
 ];
 
 let newImprovedCartProducts = [...improvedCartProducts];
-newImprovedCartProducts = newImprovedCartProducts.map(({ brand, brandProducts, isChecked }) => {
-  let newBrandProducts = [...brandProducts];
-  newBrandProducts = newBrandProducts.map((product) => {
-    return product;
+newImprovedCartProducts = newImprovedCartProducts.map((brandGroup) => {
+  let newBrandProducts = [...brandGroup.brandProducts];
+  newBrandProducts = newBrandProducts.map((brandProduct) => {
+    return brandProduct;
   });
 });
