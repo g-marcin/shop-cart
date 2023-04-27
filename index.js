@@ -2,16 +2,14 @@ let improvedCartProducts = [];
 let fetchedProductsMap = new Map();
 window.addEventListener("load", async () => {
   renderShop();
-  initializeCartDisplay();
-  function initializeCartDisplay() {
-    getDataFromLocalStorage();
-    renderCart();
-    function getDataFromLocalStorage() {
-      if (window.localStorage.getItem("improvedCartProductsJSON")) {
-        improvedCartProducts = JSON.parse(window.localStorage.getItem("improvedCartProductsJSON"));
-      }
+  getDataFromLocalStorage();
+  renderCart();
+  function getDataFromLocalStorage() {
+    if (window.localStorage.getItem("improvedCartProductsJSON")) {
+      improvedCartProducts = JSON.parse(window.localStorage.getItem("improvedCartProductsJSON"));
     }
   }
+
   async function renderShop() {
     const response = await fetch("https://dummyjson.com/products");
     const jsonData = await response.json();
