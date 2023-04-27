@@ -1,4 +1,5 @@
 let improvedCartProducts = [];
+let fetchedProductsMap = new Map();
 window.addEventListener("load", async () => {
   renderShop();
   initializeCartDisplay();
@@ -17,6 +18,7 @@ window.addEventListener("load", async () => {
     const { products } = jsonData;
     products.map((fetchedProduct) => {
       renderFetchedProduct(fetchedProduct, fetchedProduct.id);
+      fetchedProductsMap.set(fetchedProduct.id, fetchedProduct);
     });
     function renderFetchedProduct(fetchedProduct) {
       const shopContent = document.querySelector(".content__Shop");
@@ -70,7 +72,9 @@ window.addEventListener("unload", (e) => {
 
 //Handlers:
 function addToCartHandler(e, id) {
-  const { title, brand, price, count } = getShopProductData(id);
+  const { count } = getShopProductData(id);
+  const { title, brand: brandName, price } = fetchedProductsMap.get(id);
+  const brand = trimSpecialCharacters(trimWhiteSpace(brandName));
   if (count === 0) {
     return;
   }
@@ -93,7 +97,7 @@ function addToCartHandler(e, id) {
       isChecked: true,
       brandProducts: [
         {
-          product: { id: id, price: price, title: title, brand: brand },
+          product: { id: id, price: price, title: title, brand: brandName },
           isChecked: true,
           count: count,
         },
@@ -105,7 +109,7 @@ function addToCartHandler(e, id) {
     newImprovedCartProducts = newImprovedCartProducts.map((brandGroup) => {
       if (brandGroup.brand === brand) {
         brandGroup.brandProducts.push({
-          product: { id: id, price: price, title: title, brand: brand },
+          product: { id: id, price: price, title: title, brand: brandName },
           isChecked: true,
           count: count,
         });
@@ -247,7 +251,10 @@ function renderCart() {
 
     let newImprovedCartProducts = [...improvedCartProducts];
     newImprovedCartProducts = newImprovedCartProducts.map((improvedProduct) => {
-      const manufacturerBox = getManufacturerBoxMarkup(improvedProduct.brand);
+      const manufacturerBox = getManufacturerBoxMarkup(
+        improvedProduct.brand,
+        improvedProduct.brandProducts[0].product.brand
+      );
       if (!brandSet.has(improvedProduct.brand)) {
         brandSet.add(improvedProduct.brand);
         cartContent.appendChild(manufacturerBox);
@@ -255,7 +262,7 @@ function renderCart() {
       return improvedProduct;
     });
     improvedCartProducts = [...newImprovedCartProducts];
-    function getManufacturerBoxMarkup(brand) {
+    function getManufacturerBoxMarkup(brand, brandName) {
       const isBrandCheckedSet = getIsBrandCheckedSet();
       const isChecked = isBrandCheckedSet.has(brand) ? "checked" : "";
       const brandTotal = getBrandTotal(brand);
@@ -264,7 +271,7 @@ function renderCart() {
       manufacturerBox.innerHTML = ` 
           <div class="manufacturer__Header">
             <input type="checkbox" class="checkbox__Manufacturer__${brand}" onclick="brandCheckboxHandler('${brand}')" ${isChecked}/>
-            <div class="manufacturer__Name">${brand}</div>
+            <div class="manufacturer__Name">${brandName}</div>
           </div>
           <div class=" manufacturer__Products__${brand} ${brand}">
          
@@ -425,13 +432,8 @@ function getIsBrandCheckedSet() {
   return isBrandCheckedSet;
 }
 function getShopProductData(id) {
-  const title = document.querySelector(`.product__Title__${id}`).innerText;
-  const brand = trimSpecialCharacters(
-    trimWhiteSpace(document.querySelector(`.product__Brand__${id}`).innerText)
-  );
-  const price = Number(document.querySelector(`.product__Price__${id}`).innerText);
   const count = Number(document.querySelector(`.controller__Display__${id}`).value);
-  return { title: title, brand: brand, price: price, count: count };
+  return { count: count };
 }
 function trimWhiteSpace(string) {
   return string.replace(/\s/g, "");
