@@ -57,11 +57,6 @@
   /* justify-content: space-around;
   justify-self: end; */
 }
-.product__Controller {
-  display: flex;
-  justify-content: space-around;
-  justify-self: end;
-}
 
 .column {
   flex-direction: column;
@@ -90,17 +85,23 @@ body {
 article,
 h1,
 h2,
+h3,
 h4,
 p,
 section,
 body,
 main,
 a {
-  margin: 0px;
-  padding: 0px;
+  margin: 0px !important;
+  padding: 0px !important;
 }
 
 h3 {
+  font-size: 24px;
+}
+
+h4 {
+  font-size: 18px;
 }
 
 header {
@@ -143,13 +144,13 @@ main {
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 1px solid black;
-  height: 1000px;
+  /* border: 1px solid black; */
+  height: fit-content;
   padding: 25px;
 }
 
 .wrapper__Main {
-  border: 1px solid black;
+  /* border: 1px solid black; */
   display: flex;
   align-items: center;
   height: 768px;
@@ -158,15 +159,15 @@ main {
 }
 
 .wrapper__Shop {
-  border: 1px solid black;
+  /* border: 1px solid black; */
   display: flex;
   flex-direction: column;
-  flex: 10;
+  flex: 9;
   align-self: stretch;
 }
 
 .wrapper__Cart {
-  border: 1px solid black;
+  /* border: 1px solid black; */
   display: flex;
   flex-direction: column;
   flex: 5;
@@ -175,7 +176,7 @@ main {
 
 .header__Shop {
   padding: 10px;
-  border: 1px solid black;
+  /* border: 1px solid black; */
   flex: 1;
   display: flex;
   align-items: center;
@@ -186,7 +187,7 @@ main {
 
 .header__Cart {
   padding: 10px;
-  border: 1px solid black;
+  /* border: 1px solid black; */
   flex: 1;
   display: flex;
   align-items: center;
@@ -196,38 +197,80 @@ main {
 }
 
 .content__Shop {
-  flex: 15;
+  flex: 14;
   padding: 15px;
   flex-direction: row;
   display: flex;
   flex-wrap: wrap;
   gap: 15px;
-  overflow: scroll;
+  overflow-y: scroll;
 }
 
 .wrapper__Product {
-  border: 1px solid black;
-  max-width: 350px;
+  border: 1px dotted black;
+  border-radius: 12px;
+  min-width: 250px;
   padding: 10px;
-  min-height: fit-content;
+  min-height: 300px;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
   justify-content: space-between;
+  max-width: 350px;
 }
 
 .product__info {
   gap: 10px;
+  align-items: center;
+}
+
+.product__Price {
+  border: 1px solid black;
+  font-weight: 600;
+  font-size: 18px;
+  align-self: center;
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
 }
 
 .product__Thumbnail {
-  width: 100px;
-  height: 100px;
+  width: 150px;
+  height: 150px;
+  padding: 15px;
+  align-self: center;
 }
+
+.product__Description {
+  max-width: 250px;
+  font-size: 18px;
+  align-self: start;
+}
+.product__Controller {
+  padding: 15px;
+  display: flex;
+  justify-content: space-around;
+  justify-self: end;
+  align-content: center;
+  align-self: normal;
+}
+
+.controller__CountButtons {
+  display: flex;
+  flex-direction: column;
+}
+
+.controller__Display {
+  max-width: 50px;
+  display: flex;
+}
+
 .content__Cart {
   flex: 14;
   padding: 15px;
-  overflow: scroll;
+  overflow-y: scroll;
   flex-direction: column;
   gap: 15px;
 }
@@ -244,24 +287,19 @@ main {
 .grand__Total {
   width: 100px;
 }
-
 .button__AddToCart {
   justify-self: end;
-  align-self: flex-end;
+  padding: 5px;
+  align-self: stretch;
 }
-
-.product__Id {
-  display: none;
-}
-
-.wrapper__Counter {
+.counter__Buttons {
   display: flex;
   flex-direction: column;
 }
-
 .counter__Display {
   width: 35px;
   margin: 5px;
+  font-size: 18px;
 }
 
 .counter__Product {
@@ -269,11 +307,13 @@ main {
 }
 
 .grand__Total {
-  width: 100px;
+  width: 80px;
+  font-size: 18px;
 }
 
 .wrapper__Manufacturer {
   border: 1px solid black;
+  border-radius: 12px;
   height: fit-content;
   flex-grow: 1;
   margin-top: 10px;
@@ -283,7 +323,7 @@ main {
 }
 
 .manufacturer__Header {
-  border: 1px solid black;
+  /* border: 1px solid black; */
   display: flex;
   align-items: center;
   padding: 10px;
@@ -303,7 +343,7 @@ main {
 }
 
 .wrapper__Product__Cart {
-  border: 1px solid black;
+  /* border: 1px solid black; */
   display: flex;
   gap: 15px;
   margin-top: 10px;
@@ -315,15 +355,34 @@ main {
   border: 1px solid black;
   flex: 1;
   display: flex;
-  justify-content: space-around;
   align-items: center;
   gap: 25px;
+}
+
+.product__Checkbox {
+  flex: 1;
+}
+
+.cart__Title {
+  flex: 6;
+}
+
+.cart__Price {
+  flex: 1;
+}
+
+.cart__Counter {
+  flex: 2;
+}
+.cart__Delete {
+  flex: 1;
 }
 
 .product__Count {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex: 1;
 }
 
 .product__Counter {
@@ -332,7 +391,7 @@ main {
 }
 
 .manufacturer__Total {
-  border: 1px solid black;
+  /* border: 1px solid black; */
   display: flex;
   justify-content: center;
   padding: 10px;

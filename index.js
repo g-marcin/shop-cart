@@ -29,26 +29,28 @@ window.addEventListener("load", async () => {
         <div class="flex product__info">
         <img class="product__Thumbnail" src="${fetchedProduct.images[0]}" alt = "product_Thumbnail"/>
         <div class="flex column ">
-        <h3 class="product__Brand__${fetchedProduct.id}">${fetchedProduct.brand}</h3>
         <h4 class="product__Title__${fetchedProduct.id} ">${fetchedProduct.title}</h4>
-        <div class="product__Description">${fetchedProduct.description}</div>
-        <div class="flex"><div class="product__Price__${fetchedProduct.id}">${fetchedProduct.price}</div>$</div>
+        <h3 class="product__Brand__${fetchedProduct.id}">${fetchedProduct.brand}</h3>
         </div>
-       </div>
-       <div class="product__Controller">
+        </div>
+        <div class="product__Description">${fetchedProduct.description}</div>
+        <div class="product__Controller">
+        <div class="flex product__Price "><div class=" product__Price__${fetchedProduct.id} ">${fetchedProduct.price}</div>$</div>
+        <div class="flex">
         <div class="product__Counter">
           <input
             type="number"
             disabled
-            class="counter__Display"
+            class=" controller__Display  controller__Display__${fetchedProduct.id}"
             value="0"
           />
-          <div>
+          <div class="controller__CountButtons">
             <button class="counter__Product" onclick="incrementCountHandler(event)">+</button>
             <button class="counter__Product"  onclick="decrementCountHandler(event)">-</button>
           </div>
           </div>  
-          <button class="button__DisplayAddToCartHandlerButton" onClick='addToCartHandler(event,${fetchedProduct.id})'><i class="fa-solid fa-cart-plus fa-xl"></i></button>
+          <button class="button__AddToCart" onClick='addToCartHandler(event,${fetchedProduct.id})'><i class="fa-solid fa-cart-plus fa-xl"></i></button>
+          </div>
           </div>
           `;
         return product;
@@ -68,17 +70,13 @@ window.addEventListener("unload", (e) => {
 
 //Handlers:
 function addToCartHandler(e, id) {
-  console.log(getShopProductData(id));
-  const { title, brand, price } = getShopProductData(id);
-  const count = Number(
-    e.target.parentElement.parentElement.querySelector(".counter__Display").value
-  );
-  const brandSet = getImprovedBrandSet();
+  const { title, brand, price, count } = getShopProductData(id);
   if (count === 0) {
     return;
   }
-  const findProduct = getImprovedProduct(id);
+  const findProduct = getProduct(id);
   if (!findProduct) {
+    const brandSet = getBrandSet();
     if (!brandSet.has(brand)) {
       pushNewBrandGroup();
     }
@@ -130,14 +128,14 @@ function addToCartHandler(e, id) {
     improvedCartProducts = [...newImprovedCartProducts];
   }
   function resetCounterDisplay() {
-    e.target.parentElement.parentElement.querySelector(".counter__Display").value = "0"; //x
+    e.target.parentElement.parentElement.querySelector(".controller__Display").value = "0"; //x
   }
   resetCounterDisplay();
   renderCart();
 }
 function productCheckboxHandler(id) {
   const isCheckedArray = [];
-  const currentProduct = getImprovedProduct(id);
+  const currentProduct = getProduct(id);
   const {
     product: { brand },
   } = currentProduct;
@@ -154,7 +152,7 @@ function productCheckboxHandler(id) {
       isCheckedArray.push(brandProduct.isChecked);
       return brandProduct;
     });
-    if (allAreTrue(isCheckedArray)) {
+    if (checkTruthyValues(isCheckedArray)) {
       brandGroup.isChecked = true;
     }
     return brandGroup;
@@ -176,7 +174,7 @@ function brandCheckboxHandler(brand) {
   renderCart();
 }
 function incrementCountHandler(e, id) {
-  const counterDisplay = e.target.parentElement.parentElement.querySelector(".counter__Display");
+  const counterDisplay = e.target.parentElement.parentElement.querySelector(".controller__Display");
   counterDisplay.value++;
   if (e.target.className === "counter__Cart") {
     incrementCartCount(id);
@@ -196,13 +194,10 @@ function incrementCountHandler(e, id) {
   }
 }
 function decrementCountHandler(e, id) {
-  const counterDisplay = e.target.parentElement.parentElement.querySelector(".counter__Display");
-  if (Number(counterDisplay.value) >= 2) {
-    counterDisplay.value--;
-  }
-  if (e.target.className === "counter__Cart") {
-    decrementCartCount(id);
-  }
+  const counterDisplay = e.target.parentElement.parentElement.querySelector(".controller__Display");
+  Number(counterDisplay.value) >= 2 && counterDisplay.value--;
+  e.target.className === "counter__Cart" && decrementCartCount(id);
+
   function decrementCartCount(id) {
     if (Number(counterDisplay.value) < 1) {
       return;
@@ -236,25 +231,15 @@ function deleteProductHandler(id) {
       return brandGroup;
     })
     .filter((brandGroup) => brandGroup.brandProducts.length !== 0);
-
   improvedCartProducts = [...newImprovedCartProducts];
   renderCart();
-
-  function removeManufacturerBox(brand) {
-    const wrapperManufacturer = document.querySelector(`.wrapper__Manufacturer__${brand}`);
-    wrapperManufacturer.remove();
-  }
-  function removeProduct(brand) {
-    const product = document.querySelector(`.wrapper__Product__Cart__${id}`);
-    product.remove();
-  }
 }
 //Renderers:
-
 function renderCart() {
   renderImprovedBrandBoxes();
   renderImprovedCartProducts();
   renderGrandTotal();
+
   function renderImprovedBrandBoxes() {
     const cartContent = document.querySelector(".content__Cart");
     cartContent.innerHTML = "";
@@ -271,22 +256,23 @@ function renderCart() {
     });
     improvedCartProducts = [...newImprovedCartProducts];
     function getManufacturerBoxMarkup(brand) {
-      const isBrandCheckedSet = getImprovedIsBrandCheckedSet();
+      const isBrandCheckedSet = getIsBrandCheckedSet();
       const isChecked = isBrandCheckedSet.has(brand) ? "checked" : "";
-      const brandTotal = getImprovedBrandTotal(brand);
+      const brandTotal = getBrandTotal(brand);
       const manufacturerBox = document.createElement("div");
-      manufacturerBox.className = `wrapper__Manufacturer__${brand}`;
+      manufacturerBox.className = `wrapper__Manufacturer wrapper__Manufacturer__${brand}`;
       manufacturerBox.innerHTML = ` 
           <div class="manufacturer__Header">
             <input type="checkbox" class="checkbox__Manufacturer__${brand}" onclick="brandCheckboxHandler('${brand}')" ${isChecked}/>
             <div class="manufacturer__Name">${brand}</div>
           </div>
-          <div class="manufacturer__Products__${brand} ${brand}">
+          <div class=" manufacturer__Products__${brand} ${brand}">
          
           </div>
           <div class="manufacturer__Total__${brand} manufacturer__Total" >
-            Total:<input disabled class="total__Manufacturer total__Manufacturer__${brand}" value=${brandTotal} />
-          </div>
+            Total:<input class="total__Manufacturer total__Manufacturer__${brand}" value=${brandTotal} disabled  />
+            
+            </div>
         `;
       return manufacturerBox;
     }
@@ -318,7 +304,7 @@ function renderCart() {
       });
     });
     function getManufacturerProductMarkup(id) {
-      const currentImprovedProduct = getImprovedProduct(id);
+      const currentImprovedProduct = getProduct(id);
       const {
         product: { title, brand, price },
         count,
@@ -328,47 +314,47 @@ function renderCart() {
       manufacturerProduct.className = `wrapper__Product__Cart__${id}`;
       manufacturerProduct.innerHTML = `
         <div class=product__Cart__Data >
-          <label for=""> <input type="checkbox" class="checkbox__Product__${id} checkbox__Product__${brand}"  onclick="productCheckboxHandler(${id})" ${
+         <input type="checkbox" class="product__Checkbox checkbox__Product__${id} checkbox__Product__${brand}"  onclick="productCheckboxHandler(${id})" ${
         isChecked ? "checked" : ""
-      }  />${title}</label>
-          <div>${price}</div>
-          <div class="product__Counter" >
-          <form>
+      }  />
+      <div class="cart__Title">${title}</div>
+          <div class="cart__Price">${price}$</div>
+          <div class="product__Counter cart__Counter" >
+          
           <input
             type="number"
             min="1"
-            class="counter__Display counter__Display__${id}"
+            class="counter__Display controller__Display counter__Display__${id}"
             value=${count}
-          />
-          </form>
-          <div class="wrapper__Counter">
+            disabled
+          /> 
+          <div class="counter__Buttons">
             <button class="counter__Cart" onclick="incrementCountHandler(event,${id})">+</button>
             <button class="counter__Cart" onclick="decrementCountHandler(event,${id})">-</button>
           </div>
         </div>
-        <button class="button__Delete" onclick="deleteProductHandler(${id})"><i class="fa-solid fa-trash fa-lg"></i></button>
+        <button class="button__Delete cart__Delete" onclick="deleteProductHandler(${id})"><i class="fa-solid fa-trash fa-lg"></i></button>
         </div>
       `;
       return manufacturerProduct;
     }
   }
   function renderGrandTotal() {
-    const grandTotalValue = getImprovedGrandTotal();
+    const grandTotalValue = getGrandTotal();
     const wrapperCart = document.querySelector(".wrapper__Cart");
     const wrapperGrandTotal = document.querySelector(".wrapper__Grand__Total");
     const newWrapperGrandTotal = document.createElement("div");
     newWrapperGrandTotal.className = "wrapper__Grand__Total";
-    newWrapperGrandTotal.innerHTML = `<label for="">
+    newWrapperGrandTotal.innerHTML = `<span><label for="">
            Grand Total:
             <input class="grand__Total" disabled type="number" value=${grandTotalValue}  />
-           </label>`;
+           </label>$</span>`;
     wrapperGrandTotal.remove();
     wrapperCart.appendChild(newWrapperGrandTotal);
   }
 }
-
 //Helpers:
-function getImprovedProduct(id) {
+function getProduct(id) {
   let cartProducts = [];
   let newImprovedCartProducts = [...improvedCartProducts];
   newImprovedCartProducts = newImprovedCartProducts.map((improvedProduct) => {
@@ -377,7 +363,7 @@ function getImprovedProduct(id) {
   idProduct = cartProducts.filter((brandProduct) => brandProduct.product.id === id)[0];
   return idProduct;
 }
-function getImprovedBrandSet() {
+function getBrandSet() {
   const brandSet = new Set();
   let newImprovedCartProducts = [...improvedCartProducts];
   newImprovedCartProducts = newImprovedCartProducts.map((brandGroup) => {
@@ -385,7 +371,7 @@ function getImprovedBrandSet() {
   });
   return brandSet;
 }
-function getImprovedProductSet() {
+function getProductSet() {
   const productSet = new Set();
   let newImprovedCartProducts = [...improvedCartProducts];
   newImprovedCartProducts = newImprovedCartProducts.map((brandGroup) => {
@@ -396,7 +382,7 @@ function getImprovedProductSet() {
   });
   return productSet;
 }
-function getImprovedBrandTotal(brand) {
+function getBrandTotal(brand) {
   let brandTotalArray = [];
   let brandTotal = 0;
   let newImprovedCartProducts = [...improvedCartProducts];
@@ -416,11 +402,11 @@ function getImprovedBrandTotal(brand) {
   }
   return brandTotal;
 }
-function getImprovedGrandTotal() {
+function getGrandTotal() {
   const brandTotalArray = [];
   let newImprovedCartProducts = [...improvedCartProducts];
   newImprovedCartProducts = newImprovedCartProducts.map((brandGroup) => {
-    brandTotalArray.push(getImprovedBrandTotal(brandGroup.brand));
+    brandTotalArray.push(getBrandTotal(brandGroup.brand));
   });
   if (brandTotalArray.length === 0) {
     return;
@@ -428,7 +414,7 @@ function getImprovedGrandTotal() {
   const grandTotal = brandTotalArray.reduce((grandTotal, brandTotal) => grandTotal + brandTotal);
   return grandTotal;
 }
-function getImprovedIsBrandCheckedSet() {
+function getIsBrandCheckedSet() {
   const isBrandCheckedSet = new Set();
   let newImprovedCartProducts = [...improvedCartProducts];
   newImprovedCartProducts = newImprovedCartProducts.map((brandGroup) => {
@@ -438,20 +424,21 @@ function getImprovedIsBrandCheckedSet() {
   });
   return isBrandCheckedSet;
 }
-function trimWhiteSpace(string) {
-  return string.replace(/\s/g, "");
-}
-function trimSpecialCharacters(string) {
-  return string.replace(/^a-zA-Z0-9 ]/g, "").replace(/[&-']/g, "");
-}
-function allAreTrue(arr) {
-  return arr.every((element) => element === true);
-}
 function getShopProductData(id) {
   const title = document.querySelector(`.product__Title__${id}`).innerText;
   const brand = trimSpecialCharacters(
     trimWhiteSpace(document.querySelector(`.product__Brand__${id}`).innerText)
   );
   const price = Number(document.querySelector(`.product__Price__${id}`).innerText);
-  return { title: title, brand: brand, price: price };
+  const count = Number(document.querySelector(`.controller__Display__${id}`).value);
+  return { title: title, brand: brand, price: price, count: count };
+}
+function trimWhiteSpace(string) {
+  return string.replace(/\s/g, "");
+}
+function trimSpecialCharacters(string) {
+  return string.replace(/^a-zA-Z0-9 ]/g, "").replace(/[&-']/g, "");
+}
+function checkTruthyValues(arr) {
+  return arr.every((element) => element === true);
 }
