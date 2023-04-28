@@ -1,15 +1,14 @@
-let improvedCartProducts = [];
+let cartProducts = [];
 let fetchedProductsMap = new Map();
 window.addEventListener("load", async () => {
   renderShop();
   getDataFromLocalStorage();
   renderCart();
   function getDataFromLocalStorage() {
-    // if (window.localStorage.getItem("improvedCartProductsJSON")) {
-    //   improvedCartProducts = JSON.parse(window.localStorage.getItem("improvedCartProductsJSON"));
-    // }
+    if (window.localStorage.getItem("cartProductsJSON")) {
+      cartProducts = JSON.parse(window.localStorage.getItem("cartProductsJSON"));
+    }
   }
-
   async function renderShop() {
     const response = await fetch("https://dummyjson.com/products");
     const jsonData = await response.json();
@@ -45,8 +44,8 @@ window.addEventListener("load", async () => {
             value="0"
           />
           <div class="controller__CountButtons">
-            <button class="counter__Product" onclick="incrementProductCount(event)">+</button>
-            <button class="counter__Product"  onclick="decrementProductCount(event)">-</button>
+            <button class="counter__Product" onclick="increaseProductCount(event)">+</button>
+            <button class="counter__Product"  onclick="decreaseProductCount(event)">-</button>
           </div>
           </div>  
           <button class="button__AddToCart" onClick='addToCartHandler(event,${fetchedProduct.id})'><i class="fa-solid fa-cart-plus fa-xl"></i></button>
@@ -61,9 +60,9 @@ window.addEventListener("load", async () => {
 window.addEventListener("unload", (e) => {
   saveDataToLocalStorage();
   function saveDataToLocalStorage() {
-    const improvedCartProductsJSON = JSON.stringify(improvedCartProducts);
+    const cartProductsJSON = JSON.stringify(cartProducts);
     window.localStorage.clear();
-    window.localStorage.setItem("improvedCartProductsJSON", improvedCartProductsJSON);
+    window.localStorage.setItem("cartProductsJSON", cartProductsJSON);
   }
 });
 //load/save:
@@ -90,7 +89,7 @@ function addToCartHandler(e, id) {
     updateProductCount();
   }
   function pushNewBrandGroup() {
-    improvedCartProducts.push({
+    cartProducts.push({
       brand: brand,
       isChecked: true,
       brandProducts: [
@@ -103,8 +102,8 @@ function addToCartHandler(e, id) {
     });
   }
   function updateExistingBrandGroup() {
-    let newImprovedCartProducts = [...improvedCartProducts];
-    newImprovedCartProducts = newImprovedCartProducts.map((brandGroup) => {
+    let newCartProducts = [...cartProducts];
+    newCartProducts = newCartProducts.map((brandGroup) => {
       if (brandGroup.brand === brand) {
         brandGroup.brandProducts.push({
           product: { id: id, price: price, title: title, brand: brandName },
@@ -115,8 +114,8 @@ function addToCartHandler(e, id) {
     });
   }
   function updateProductCount() {
-    let newImprovedCartProducts = [...improvedCartProducts];
-    newImprovedCartProducts = newImprovedCartProducts.map((brandGroup) => {
+    let newCartProducts = [...cartProducts];
+    newCartProducts = newCartProducts.map((brandGroup) => {
       let newBrandProducts = [...brandGroup.brandProducts];
       newBrandProducts = newBrandProducts.map((brandProduct) => {
         if (brandProduct.product.id === id) {
@@ -127,7 +126,7 @@ function addToCartHandler(e, id) {
 
       return brandGroup;
     });
-    improvedCartProducts = [...newImprovedCartProducts];
+    cartProducts = [...newCartProducts];
   }
   function resetCounterDisplay() {
     e.target.parentElement.parentElement.querySelector(".controller__Display").value = "0"; //x
@@ -141,8 +140,8 @@ function productCheckboxHandler(id) {
   const {
     product: { brand },
   } = currentProduct;
-  let newImprovedCartProducts = structuredClone(improvedCartProducts);
-  improvedCartProducts = newImprovedCartProducts.map((brandGroup) => {
+  let newCartProducts = structuredClone(cartProducts);
+  cartProducts = newCartProducts.map((brandGroup) => {
     brandGroup.brandProducts.forEach((brandProduct) => {
       if (brandProduct.product.id === id) {
         brandProduct.isChecked = !brandProduct.isChecked;
@@ -161,8 +160,8 @@ function productCheckboxHandler(id) {
   renderCart();
 }
 function brandCheckboxHandler(brand) {
-  let newImprovedCartProducts = structuredClone(improvedCartProducts);
-  improvedCartProducts = newImprovedCartProducts.map((brandGroup) => {
+  let newCartProducts = structuredClone(cartProducts);
+  cartProducts = newCartProducts.map((brandGroup) => {
     if (brandGroup.brand === brand) {
       brandGroup.isChecked = !brandGroup.isChecked;
       brandGroup.brandProducts.forEach((brandProduct) => {
@@ -173,21 +172,21 @@ function brandCheckboxHandler(brand) {
   });
   renderCart();
 }
-function incrementProductCount(e) {
+function increaseProductCount(e) {
   const counterDisplay = e.target.parentElement.parentElement.querySelector(".controller__Display");
   counterDisplay.value++;
 }
-function decrementProductCount(e) {
+function decreaseProductCount(e) {
   const counterDisplay = e.target.parentElement.parentElement.querySelector(".controller__Display");
   Number(counterDisplay.value) >= 2 && counterDisplay.value--;
 }
-function decrementCartCount(e, id) {
+function decreaseCartCount(e, id) {
   const counterDisplay = e.target.parentElement.parentElement.querySelector(".controller__Display");
   if (Number(counterDisplay.value) < 1) {
     return;
   }
-  let newImprovedCartProducts = [...improvedCartProducts];
-  newImprovedCartProducts = newImprovedCartProducts.map((outerProduct) => {
+  let newCartProducts = [...cartProducts];
+  newCartProducts = newCartProducts.map((outerProduct) => {
     let newBrandProducts = [...outerProduct.brandProducts];
     newBrandProducts = newBrandProducts.map((brandProduct) => {
       if (brandProduct.product.id === id) {
@@ -197,27 +196,29 @@ function decrementCartCount(e, id) {
     });
     return outerProduct;
   });
-  improvedCartProducts = [...newImprovedCartProducts];
+  cartProducts = [...newCartProducts];
   renderCart();
 }
-function incrementCartCount(e, id) {
-  let newImprovedCartProducts = [...improvedCartProducts];
-  newImprovedCartProducts = newImprovedCartProducts.map(({ brand, brandProducts, isChecked }) => {
-    let newBrandProducts = [...brandProducts];
-    newBrandProducts = newBrandProducts.map((brandProduct) => {
+function increaseCartCount(e, id) {
+  let newCartProducts = structuredClone(cartProducts);
+  cartProducts = newCartProducts.map((brandGroup) => {
+    brandGroup.brandProducts.map((brandProduct) => {
       if (brandProduct.product.id === id) {
         brandProduct.count++;
       }
       return brandProduct;
     });
+    return brandGroup;
   });
   renderCart();
 }
 function deleteProductHandler(id) {
-  let newImprovedCartProducts = structuredClone(improvedCartProducts);
-  improvedCartProducts = newImprovedCartProducts
+  let newCartProducts = structuredClone(cartProducts);
+  cartProducts = newCartProducts
     .map((brandGroup) => {
-      brandGroup.brandProducts = brandGroup.brandProducts.filter((brandProduct) => brandProduct.product.id !== id);
+      brandGroup.brandProducts = brandGroup.brandProducts.filter(
+        (brandProduct) => brandProduct.product.id !== id
+      );
       return brandGroup;
     })
     .filter((brandGroup) => brandGroup.brandProducts.length !== 0);
@@ -225,25 +226,28 @@ function deleteProductHandler(id) {
 }
 //Renderers:
 function renderCart() {
-  renderImprovedBrandBoxes();
-  renderImprovedCartProducts();
+  renderBrandBoxes();
+  renderCartProducts();
   renderGrandTotal();
 
-  function renderImprovedBrandBoxes() {
+  function renderBrandBoxes() {
     const cartContent = document.querySelector(".content__Cart");
     cartContent.innerHTML = "";
     const brandSet = new Set();
 
-    let newImprovedCartProducts = structuredClone(improvedCartProducts);
-    improvedCartProducts = newImprovedCartProducts.map((improvedProduct) => {
-      const manufacturerBox = getManufacturerBoxMarkup(improvedProduct.brand, improvedProduct.brandProducts[0].product.brand);
+    let newCartProducts = structuredClone(cartProducts);
+    cartProducts = newCartProducts.map((improvedProduct) => {
+      const manufacturerBox = getBrandBoxMarkup(
+        improvedProduct.brand,
+        improvedProduct.brandProducts[0].product.brand
+      );
       if (!brandSet.has(improvedProduct.brand)) {
         brandSet.add(improvedProduct.brand);
         cartContent.appendChild(manufacturerBox);
       }
       return improvedProduct;
     });
-    function getManufacturerBoxMarkup(brand, brandName) {
+    function getBrandBoxMarkup(brand, brandName) {
       const isBrandCheckedSet = getIsBrandCheckedSet();
       const isChecked = isBrandCheckedSet.has(brand) ? "checked" : "";
       const brandTotal = getBrandTotal(brand);
@@ -259,16 +263,16 @@ function renderCart() {
           </div>
           <div class="manufacturer__Total__${brand} manufacturer__Total" >
             Total:<input class="total__Manufacturer total__Manufacturer__${brand}" value=${brandTotal} disabled  />
-            
+            $
             </div>
         `;
       return manufacturerBox;
     }
   }
-  function renderImprovedCartProducts() {
+  function renderCartProducts() {
     const productSet = new Set();
-    let newImprovedCartProducts = structuredClone(improvedCartProducts);
-    improvedCartProducts = newImprovedCartProducts.map((brandGroup) => {
+    let newCartProducts = structuredClone(cartProducts);
+    cartProducts = newCartProducts.map((brandGroup) => {
       brandGroup.brandProducts.forEach((brandProduct) => {
         const manufacturerBox = document.querySelector(`.${brandGroup.brand}`);
         const manufacturerProduct = getManufacturerProductMarkup(brandProduct.product.id);
@@ -276,7 +280,9 @@ function renderCart() {
           manufacturerBox.appendChild(manufacturerProduct);
           productSet.add(brandProduct.product.id);
         } else {
-          let oldProduct = document.querySelector(`.wrapper__Product__Cart__${brandProduct.product.id}`);
+          let oldProduct = document.querySelector(
+            `.wrapper__Product__Cart__${brandProduct.product.id}`
+          );
           if (oldProduct) {
             oldProduct.remove();
           }
@@ -296,7 +302,7 @@ function renderCart() {
         isChecked,
       } = currentImprovedProduct;
       const manufacturerProduct = document.createElement("div");
-      manufacturerProduct.className = `wrapper__Product__Cart__${id}`;
+      manufacturerProduct.className = `wrapper__Product__Cart wrapper__Product__Cart__${id} `;
       manufacturerProduct.innerHTML = `
         <div class=product__Cart__Data >
          <input type="checkbox" class="product__Checkbox checkbox__Product__${id} checkbox__Product__${brand}"  onclick="productCheckboxHandler(${id})" ${
@@ -314,8 +320,8 @@ function renderCart() {
             disabled
           /> 
           <div class="counter__Buttons">
-            <button class="counter__Cart" onclick="incrementCartCount(event,${id})">+</button>
-            <button class="counter__Cart" onclick="decrementCartCount(event,${id})">-</button>
+            <button class="counter__Cart" onclick="increaseCartCount(event,${id})">+</button>
+            <button class="counter__Cart" onclick="decreaseCartCount(event,${id})">-</button>
           </div>
         </div>
         <button class="button__Delete cart__Delete" onclick="deleteProductHandler(${id})"><i class="fa-solid fa-trash fa-lg"></i></button>
@@ -340,23 +346,23 @@ function renderCart() {
 }
 //Helpers:
 function getProduct(id) {
-  let cartProducts = [];
-  improvedCartProducts.forEach((improvedProduct) => {
-    cartProducts = cartProducts.concat(improvedProduct.brandProducts);
+  let allProducts = [];
+  cartProducts.forEach((improvedProduct) => {
+    allProducts = allProducts.concat(improvedProduct.brandProducts);
   });
-  idProduct = cartProducts.filter((brandProduct) => brandProduct.product.id === id)[0];
+  idProduct = allProducts.filter((brandProduct) => brandProduct.product.id === id)[0];
   return idProduct;
 }
 function getBrandSet() {
   const brandSet = new Set();
-  improvedCartProducts.forEach((brandGroup) => {
+  cartProducts.forEach((brandGroup) => {
     brandSet.add(brandGroup.brand);
   });
   return brandSet;
 }
 function getProductSet() {
   const productSet = new Set();
-  improvedCartProducts.forEach((brandGroup) => {
+  cartProducts.forEach((brandGroup) => {
     brandGroup.brandProducts.forEach((brandProduct) => {
       productSet.add(brandProduct.product.id);
     });
@@ -366,8 +372,7 @@ function getProductSet() {
 function getBrandTotal(brand) {
   let brandTotalArray = [];
   let brandTotal = 0;
-
-  improvedCartProducts.forEach((brandGroup) => {
+  cartProducts.forEach((brandGroup) => {
     if (brandGroup.brand === brand) {
       let newBrandProducts = [...brandGroup.brandProducts];
       newBrandProducts
@@ -386,7 +391,7 @@ function getBrandTotal(brand) {
 function getGrandTotal() {
   const brandTotalArray = [];
 
-  improvedCartProducts.forEach((brandGroup) => {
+  cartProducts.forEach((brandGroup) => {
     brandTotalArray.push(getBrandTotal(brandGroup.brand));
   });
   if (brandTotalArray.length === 0) {
@@ -397,7 +402,7 @@ function getGrandTotal() {
 }
 function getIsBrandCheckedSet() {
   const isBrandCheckedSet = new Set();
-  improvedCartProducts.forEach((brandGroup) => {
+  cartProducts.forEach((brandGroup) => {
     if (brandGroup.isChecked === true) {
       isBrandCheckedSet.add(brandGroup.brand);
     }
