@@ -10,7 +10,7 @@ window.addEventListener("load", async () => {
     }
   }
   async function renderShop() {
-    const response = await fetch("https://dummyjson.com/products");
+    const response = await fetch("https://dummyjson.com/products?limit=100");
     const jsonData = await response.json();
     const { products } = jsonData;
     products.map((fetchedProduct) => {
@@ -69,7 +69,7 @@ window.addEventListener("unload", (e) => {
 
 //Handlers:
 function addToCartHandler(e, id) {
-  const { count } = getProductCount(id);
+  const { count } = readProductCount(id);
   const { title, brand: brandName, price } = fetchedProductsMap.get(id);
   const brand = trimSpecialCharacters(trimWhiteSpace(brandName));
   if (count === 0) {
@@ -409,7 +409,7 @@ function getIsBrandCheckedSet() {
   });
   return isBrandCheckedSet;
 }
-function getProductCount(id) {
+function readProductCount(id) {
   const count = Number(document.querySelector(`.controller__Display__${id}`).value);
   return { count: count };
 }
