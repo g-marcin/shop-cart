@@ -86,7 +86,7 @@ async function renderShop() {
         <img class="product__Thumbnail" src="${fetchedProduct.images[0]}" alt = "product_Thumbnail"/>
         <div class="flex column ">
         <h4 class="product__Title__${fetchedProduct.id} ">${fetchedProduct.title}</h4>
-        <h3 class="product__Brand__${fetchedProduct.id}">${fetchedProduct.brand? fetchedProduct.brand : 'common products'}</h3>
+        <h3 class="product__Brand__${fetchedProduct.id}">${fetchedProduct.brand !==undefined ? fetchedProduct.brand : 'common products'}</h3>
         </div>
         </div>
         <div class="product__Description">${fetchedProduct.description}</div>
