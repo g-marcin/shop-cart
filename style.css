@@ -1,44 +1,4 @@
-/* fonts */
-@font-face {
-  font-family: Poppins-SemiBold;
-  src: url(./fonts/Poppins/Poppins-SemiBold.ttf);
-}
-@font-face {
-  font-family: Inter;
-  src: url(./fonts/Inter/static/Inter-Regular.ttf);
-}
-@font-face {
-  font-family: Hind-Regular;
-  src: url(./fonts/Hind/Hind-Regular.ttf);
-}
-@font-face {
-  font-family: Hind-Bold;
-  src: url(./fonts/Hind/Hind-Bold.ttf);
-}
-@font-face {
-  font-family: Hind-Medium;
-  src: url(./fonts/Hind/Hind-Medium.ttf);
-}
 
-.Poppins {
-  font-family: Poppins-SemiBold;
-}
-.Inter {
-  font-family: Inter;
-}
-.Hind-Bold {
-  font-family: Hind-Bold;
-}
-.Hind-Regular {
-  font-family: Hind-Regular;
-  font-weight: 400;
-}
-.Hind-Medium {
-  font-family: Hind-Medium;
-}
-.weight600 {
-  font-weight: 600;
-}
 .separator-5 {
   margin: auto;
   min-width: 5vw;
@@ -72,19 +32,7 @@ button {
 body {
   padding: 25px;
 }
-article,
-h1,
-h2,
-h3,
-h4,
-p,
-section,
-body,
-main,
-a {
-  margin: 0px !important;
-  padding: 0px !important;
-}
+
 h3 {
   font-size: 24px;
 }
