@@ -117,6 +117,7 @@ if(IS_BROWSER_ENVIRONMENT){
     if(!fetchedProduct){
       return
     }
+    // console.log('getProductCardHTMLMarkup!', fetchedProduct);
     const product = document.createElement("div");
     product.className = `wrapper__Product`;
     product.innerHTML = `
@@ -150,6 +151,8 @@ if(IS_BROWSER_ENVIRONMENT){
     return product;
   }  
   function getBrandBoxMarkup(brand, brandName) {
+    console.log('getBrandBoxHTMLMarkup!', brand, brandName);
+
     const isBrandCheckedSet = getIsBrandCheckedSet();
     const isChecked = isBrandCheckedSet.has(brand) ? "checked" : "";
     const brandTotal = getBrandTotal(brand);
@@ -171,7 +174,6 @@ if(IS_BROWSER_ENVIRONMENT){
       `;
     return brandBox;
   }
-  
   function getManufacturerProductMarkup(id) {
     const currentextendedProduct = getProductById(id);
     const {
@@ -179,6 +181,7 @@ if(IS_BROWSER_ENVIRONMENT){
       count,
       isChecked,
     } = currentextendedProduct;
+    console.log('manufacturerProduct', brand);
     const manufacturerProduct = document.createElement("div");
     manufacturerProduct.className = `wrapper__Product__Cart wrapper__Product__Cart__${id} `;
     manufacturerProduct.innerHTML = `
@@ -212,9 +215,11 @@ if(IS_BROWSER_ENVIRONMENT){
   
   //Handlers:
   function addToCartHandler(e, id) {
+    console.log(globalStateObject.cart);
     const { count } = readProductCount(id);
     const { title, brand: brandName, price } = fetchedProductsMap.get(id);
     const brand = trimSpecialCharacters(trimWhiteSpace(brandName));
+
     if (count === 0) {
       return;
     }
@@ -225,7 +230,7 @@ if(IS_BROWSER_ENVIRONMENT){
       if (BRANDBOX_NOT_RENDERED) {
         pushNewBrandGroup();
       }
-      const BRANDBOX_IS_RENDERED = !brandSet.has(brand);
+      const BRANDBOX_IS_RENDERED = brandSet.has(brand);
       if (BRANDBOX_IS_RENDERED) {
         updateExistingBrandGroup();
       }
