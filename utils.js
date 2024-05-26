@@ -27,12 +27,3 @@ newImprovedCartProducts = newImprovedCartProducts.map((brandGroup) => {
   });
 });
 
-export const test = () => {
-  console.log('modules working!');
-}
-
-test()
-window.alert('modules working!') // this works
-window.addEventListener('load', () =>{
-  console.log('modules working!')
-} )

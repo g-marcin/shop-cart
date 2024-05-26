@@ -1,0 +1,9 @@
+[
+    {"brand":"Essence","isChecked":true,"brandProducts":
+        [
+            {
+                "product":{"id":1,"price":9.99,"title":"Essence Mascara Lash Princess","brand":"Essence"},"isChecked":true,"count":1
+            }
+        ]
+    }
+]
