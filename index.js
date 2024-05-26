@@ -82,6 +82,9 @@ if(IS_BROWSER_ENVIRONMENT){
       const jsonData = await response.json();
       const { products } = jsonData;
       products.map((fetchedProduct) => {
+        if(!fetchedProduct.brand){
+          fetchedProduct.brand = "common products";
+        }
         renderFetchedProduct(fetchedProduct, fetchedProduct.id);
         fetchedProductsMap.set(fetchedProduct.id, fetchedProduct);
       });
