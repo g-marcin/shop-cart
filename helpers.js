@@ -50,16 +50,16 @@ function getBrandTotal(brand) {
 function getGrandTotal() {
   const brandTotalArray = [];
 
-  globalStateObject.cart.forEach((brandGroup) => {
+  globalStateObject._cart.forEach((brandGroup) => {
     brandTotalArray.push(getBrandTotal(brandGroup.brand));
   });
   if (brandTotalArray.length === 0) {
-    return;
+    return 0;
   }
   const grandTotal = brandTotalArray.reduce(
     (grandTotal, brandTotal) => grandTotal + brandTotal,
   );
-  return grandTotal;
+  return grandTotal
 }
 function getIsBrandCheckedSet() {
   const isBrandCheckedSet = new Set();
@@ -100,6 +100,7 @@ function decreaseProductCount(e) {
 }
 
 function renderGrandTotal(grandTotalValue) {
+  console.log('renderGrandTotal',grandTotalValue);
   const wrapperCart = document.querySelector(".wrapper__Cart");
 
   const wrapperGrandTotal = document.querySelector(".wrapper__Grand__Total");
