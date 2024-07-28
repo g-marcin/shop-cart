@@ -13,6 +13,7 @@ export const helpers = {
   deleteProductHandler,
   increaseCartCount,
   decreaseCartCount,
+  getProductById
 };
 
 
@@ -130,7 +131,6 @@ function decreaseCartCount(e, id) {
     });
     return outerProduct;
   });
-  globalStateObject.cart = [...newCartProducts];
   renderCart();
 }
 function increaseCartCount(e, id) {
@@ -155,4 +155,12 @@ function deleteProductHandler(id) {
     })
     .filter((brandGroup) => brandGroup.brandProducts.length !== 0);
   renderCart();
+}
+function getProductById(id) {
+  let allProducts = [];
+  globalStateObject.cart.forEach((extendedProduct) => {
+    allProducts = allProducts.concat(extendedProduct.brandProducts);
+  });
+  const productId = allProducts.filter((brandProduct) => brandProduct.product.id === id)[0];
+  return productId;
 }
