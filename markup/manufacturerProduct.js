@@ -26,16 +26,17 @@ export function getManufacturerProductHTMLMarkup(props) {
           class="counter__Display controller__Display counter__Display__${id}"
           value=${count}
           disabled
+          data-testid="product_checkbox"
           /> 
   
           <div class="counter__Buttons">
-              <button class="counter__Cart" onclick="increaseCartCount(event,${id})">+</button>
-              <button class="counter__Cart" onclick="decreaseCartCount(event,${id})">-</button>
+              <button class="counter__Cart" data-testid="cart_product_plus" onclick="increaseCartCount(event,${id})">+</button>
+              <button class="counter__Cart" data-testid="cart_product_minus" onclick="decreaseCartCount(event,${id})">-</button>
           </div>
   
       </div>
   
-      <button class="button__Delete cart__Delete" onclick="deleteProductHandler(${id})"><i class="fa-solid fa-trash fa-lg"></i></button>
+      <button class="button__Delete cart__Delete" data-testid="delete_product" onclick="deleteProductHandler(${id})"><i class="fa-solid fa-trash fa-lg"></i></button>
       </div>
   
     `;
