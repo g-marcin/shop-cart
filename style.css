@@ -78,9 +78,13 @@ main {
 }
 .wrapper__Main {
   display: flex;
+  flex-direction: column-reverse;
   align-items: center;
-  height: 768px;
   gap: 25px;
+  @media(min-width: 992px){
+    flex-direction: row;
+    height: 768px;
+  }
 }
 .wrapper__Shop {
   padding: 25px;
