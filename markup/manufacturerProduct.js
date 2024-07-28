@@ -11,6 +11,7 @@ export function getManufacturerProductHTMLMarkup(props) {
           class="product__Checkbox checkbox__Product__${id} checkbox__Product__${brand}"  
           onclick="productCheckboxHandler(${id})" 
           ${isChecked && "checked"}
+          data-testid="product_checkbox"
       />
       <div class="cart__Title">
           ${title}
@@ -26,7 +27,7 @@ export function getManufacturerProductHTMLMarkup(props) {
           class="counter__Display controller__Display counter__Display__${id}"
           value=${count}
           disabled
-          data-testid="product_checkbox"
+          data-testid="cart_product_display"
           /> 
   
           <div class="counter__Buttons">

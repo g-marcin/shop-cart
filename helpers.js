@@ -86,13 +86,13 @@ export function checkTruthyValues(arr) {
   return arr.every((element) => Boolean(element) === true);
 }
 
-function increaseProductCount(e) {
+export function increaseProductCount(e) {
   const counterDisplay = e.target.parentElement.parentElement.querySelector(
     ".controller__Display",
   );
   counterDisplay.value++;
 }
-function decreaseProductCount(e) {
+export function decreaseProductCount(e) {
   const counterDisplay = e.target.parentElement.parentElement.querySelector(
     ".controller__Display",
   );
@@ -114,7 +114,6 @@ function renderGrandTotal(grandTotalValue) {
         </label>$</span>`;
   wrapperCart.appendChild(newWrapperGrandTotal);
 }
-
 function decreaseCartCount(e, id) {
   const counterDisplay = e.target.parentElement.parentElement.querySelector(
     ".controller__Display",

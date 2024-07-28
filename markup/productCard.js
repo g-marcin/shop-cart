@@ -28,6 +28,7 @@ export function getProductCardHTMLMarkup(fetchedProduct) {
           disabled
           class="controller__Display  controller__Display__${fetchedProduct.id}"
           value="0"
+          data-testid="shop_product_display"
         />
         <div class="controller__CountButtons">
           <button class="counter__Product" data-testid="shop_product_plus" onclick="increaseProductCount(event)">+</button>
