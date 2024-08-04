@@ -1,4 +1,8 @@
 import * as puppeteer from 'puppeteer' 
+import dotenv from 'dotenv';
+
+dotenv.config();
+
 export async function addProductToCart() {
   console.time("feedbackForm-test");
   const browser = await puppeteer.launch({
@@ -16,7 +20,7 @@ export async function addProductToCart() {
   });
   
   await page.goto(
-    "http://localhost:8080",
+    `http://localhost:3001`,
     { timeout: 80000 }
   );
   await page.waitForSelector('[data-testid="shop_product_plus"]');
@@ -27,6 +31,8 @@ export async function addProductToCart() {
   await page.evaluate(() => {
     window.scrollTo(0, 0);
   });
+
+  return({browser, page})
 }
 
 addProductToCart();

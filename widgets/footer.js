@@ -1,4 +1,3 @@
-//footer
 window.addEventListener("load", () => {
   const footer = document.createElement("footer");
   footer.className = "footer";
@@ -41,7 +40,6 @@ window.addEventListener("load", () => {
               ><i class="fa-brands fa-solid fa-twitter fa-lg"></i
             ></a>
           </div>
-    `;
-
+`;
   document.body.appendChild(footer);
 });

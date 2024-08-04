@@ -32,18 +32,6 @@ import { getDataFromLocalStorage, saveDataToLocalStorage } from "./localStorage.
 import { fetchedProductsMap, globalStateObject } from "./state.js";
 import { getProductCardHTMLMarkup, getBrandBoxHTMLMarkup, getManufacturerProductHTMLMarkup } from "./markup/index.js";
 
-if (IS_NODE_ENVIRONMENT) {
-  function checkTruthyValues(arr) {
-    return arr.every((element) => Boolean(element) === true);
-  }
-  module.exports = {
-    checkTruthyValues,
-    mockProduct,
-    increaseProductCount,
-    addToCartHandler,
-  };
-}
-
 if(IS_BROWSER_ENVIRONMENT){
   window.addEventListener(PAGE_LOAD, () => {
     window.globalStateObject=globalStateObject
@@ -217,8 +205,6 @@ if(IS_BROWSER_ENVIRONMENT){
     renderCart();
   }
 
- 
-  //Renderers:
   function renderCart() {
     renderBrandBoxes();
     renderCartProducts();
@@ -249,6 +235,7 @@ if(IS_BROWSER_ENVIRONMENT){
         return extendedProduct;
       });
     }
+    
     function renderCartProducts() {
       const productSet = new Set();
    
