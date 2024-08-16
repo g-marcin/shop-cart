@@ -1,3 +1,4 @@
+
 export const helpers = {
   checkTruthyValues,
   getBrandSet,
@@ -13,7 +14,8 @@ export const helpers = {
   deleteProductHandler,
   increaseCartCount,
   decreaseCartCount,
-  getProductById
+  getProductById,
+  resetCart
 };
 
 
@@ -163,4 +165,9 @@ function getProductById(id) {
   });
   const productId = allProducts.filter((brandProduct) => brandProduct.product.id === id)[0];
   return productId;
+}
+
+function resetCart(){
+  globalStateObject.reset()
+  renderCart()
 }

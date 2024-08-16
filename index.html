@@ -12,6 +12,7 @@
       crossorigin="anonymous"
     ></script>
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="buttons.css" />
     <link rel="stylesheet" href="fonts.css" />
     <link rel="stylesheet" href="baseLine.css" />
   </head>
@@ -20,13 +21,19 @@
       <div class="wrapper__Main">
         <div class="wrapper__Shop">
           <div class="header__Shop">
-            <i class="fa-solid fa-shop"></i> THE SHOP
+              <i class="fa-solid fa-shop"></i>
+              <h2>THE SHOP</h2>
           </div>
           <div class="content__Shop" data-testid="shop_content"></div>
         </div>
         <div class="wrapper__Cart">
           <div class="header__Cart">
-            <i class="fa-solid fa-cart-shopping"></i> THE CART
+            <div class="logo__Cart">
+              <i class="fa-solid fa-cart-shopping"></i>
+              <h2>THE CART</h2> 
+            </div>
+            
+            <button class="cart__reset" onclick="resetCart()" >clear</button>
           </div>
           <div class="content__Cart" data-testid="content-cart"></div>
           <div class="wrapper__Grand__Total">

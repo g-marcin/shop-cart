@@ -1,0 +1,11 @@
+.cart__reset{
+    padding:8px 12px;
+    font-size: 12px;
+    font-size: 24px;
+}
+
+.button__Hamburger {
+    display: none;
+    border: none;
+    background: none;
+  }

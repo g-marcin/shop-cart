@@ -14,7 +14,8 @@ const {
   increaseCartCount,
   decreaseCartCount,
   deleteProductHandler,
-  getProductById
+  getProductById,
+  resetCart
 } = helpers
 
 import { constants } from "./constants.js";
@@ -60,6 +61,7 @@ if(IS_BROWSER_ENVIRONMENT){
     window.getDataFromLocalStorage = getDataFromLocalStorage
     window.getProductById = getProductById
     window.renderCart = renderCart
+    window.resetCart = resetCart
     
     getDataFromLocalStorage();
     renderShop();
