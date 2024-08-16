@@ -1,3 +1,23 @@
+html{
+  padding: 8px;
+}
+
+h1{
+
+}
+
+h2{
+  font-size: 24px;
+}
+
+i{
+  font-size: 18px;
+}
+
+main{
+  padding: 12px 0;
+}
+
 .separator-5 {
   margin: auto;
   min-width: 5vw;
@@ -87,21 +107,19 @@ main {
   }
 }
 .wrapper__Shop {
-  padding: 25px;
   display: flex;
   flex-direction: column;
   flex: 2;
   align-self: stretch;
 }
 .wrapper__Cart {
-  padding: 25px;
   display: flex;
   flex-direction: column;
   flex: 1;
   align-self: stretch;
 }
 .header__Shop {
-  padding: 25px 100px;
+  padding: 8px 12px;
   flex: 1;
   display: flex;
   align-items: center;
@@ -110,19 +128,23 @@ main {
   font-size: 18px;
 }
 .header__Cart {
-  padding: 25px 100px;
-  flex: 1;
   display: flex;
   align-items: center;
-  justify-content: end;
+  justify-content: space-between;
   font-weight: bold;
-  font-size: 18px;
+  padding: 0 8px;
+}
+.logo__Cart{
+  display: flex;
+  align-items: center;
+  justify-items: center;
 }
 .content__Shop {
-  flex: 14;
-  padding: 15px;
+  padding: 0 8px;
   flex-direction: row;
   display: flex;
+  align-items: center;
+  justify-content: center;
   flex-wrap: wrap;
   gap: 15px;
   overflow-y: scroll;
@@ -130,14 +152,13 @@ main {
 .wrapper__Product {
   border: 1px dotted black;
   border-radius: 12px;
-  min-width: 250px;
   padding: 10px;
   min-height: 300px;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
   justify-content: space-between;
-  max-width: 350px;
+  max-width: 325px;
 }
 .product__info {
   gap: 10px;
@@ -333,9 +354,4 @@ a:hover {
 }
 a:active {
   opacity: 1;
-}
-.button__Hamburger {
-  display: none;
-  border: none;
-  background: none;
 }

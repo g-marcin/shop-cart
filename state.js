@@ -10,6 +10,14 @@ export const globalStateObject = {
   // TODO: isProductChecked
   // TODO: isBrandChecked
   // TODO: isAllProductsChecked
+  reset() {
+    this._cart = [];
+    this._renderedBrands = [];
+    this._renderedProducts = [];
+    this._checkedBrands = [];
+    this._grandTotal = 0;
+    console.log('cart-reset!'); 
+  }
 };
 
 //TODO add reducer
