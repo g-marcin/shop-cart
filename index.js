@@ -84,8 +84,14 @@ if(IS_BROWSER_ENVIRONMENT){
     const shopWrapper = document.querySelector('.wrapper__Shop')
     const cartWrapper = document.querySelector('.wrapper__Cart')
     const CART_WIDTH = 400
+
+    const MIN_SHOP_WIDTH = 440
     const MAIN_WIDTH = mainElement.offsetWidth
     const INPUT_PERCENTAGE = currentInputVale/100
+    if((MAIN_WIDTH - CART_WIDTH) * (INPUT_PERCENTAGE) <= MIN_SHOP_WIDTH){
+      return
+    }
+
     shopWrapper.style.width = `${(MAIN_WIDTH - CART_WIDTH) * (INPUT_PERCENTAGE)}px`
     cartWrapper.style.width = `${(MAIN_WIDTH) - (MAIN_WIDTH - CART_WIDTH)*(INPUT_PERCENTAGE)}px`
   }
