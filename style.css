@@ -50,6 +50,7 @@ button {
 }
 body {
   padding: 25px;
+  height: 100vh;
 }
 
 h3 {
@@ -65,6 +66,7 @@ header {
   padding: 0 3vw;
   height: 77px;
   opacity: 0.8;
+
 }
 .logo {
   font-size: 26px;
@@ -95,28 +97,35 @@ main {
   align-items: center;
   height: fit-content;
   padding: 25px;
+  width: 100%;
+  justify-self: stretch;
+  align-self: stretch;
 }
 .wrapper__Main {
+  
   display: flex;
   flex-direction: column-reverse;
   align-items: center;
-  gap: 25px;
+  width: 100%;
+  max-height: 80vh;
   @media(min-width: 992px){
     flex-direction: row;
-    height: 768px;
+  
   }
 }
 .wrapper__Shop {
   display: flex;
   flex-direction: column;
-  flex: 2;
+  width: 100%;
   align-self: stretch;
 }
 .wrapper__Cart {
   display: flex;
   flex-direction: column;
-  flex: 1;
+  justify-self: stretch;
   align-self: stretch;
+  min-width: 400px
+  
 }
 .header__Shop {
   padding: 8px 12px;
@@ -153,12 +162,12 @@ main {
   border: 1px dotted black;
   border-radius: 12px;
   padding: 10px;
-  min-height: 300px;
+  height: 380px;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
   justify-content: space-between;
-  max-width: 325px;
+  width: 325px;
 }
 .product__info {
   gap: 10px;
@@ -354,4 +363,19 @@ a:hover {
 }
 a:active {
   opacity: 1;
+}
+
+.windows-size-controller-container{
+  display: flex;
+  justify-content: start;
+  padding: 12px 0px 12px 10px;
+}
+
+.windows-size-controller{
+  width: 80%;
+  display: none;
+
+  @media(min-width: 992px){
+    display: block;
+  }
 }

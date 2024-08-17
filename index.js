@@ -66,7 +66,29 @@ if(IS_BROWSER_ENVIRONMENT){
     getDataFromLocalStorage();
     renderShop();
     renderCart();
+    // renderMain()
   
+    const rangeInput = document.querySelector('.windows-size-controller')
+    rangeInput.addEventListener('input', observeInputValue)
+   
+
+  function observeInputValue(event){
+    const currentInputVale = event.target.value
+    const rangeInputDisplay = document.querySelector('.windows-size-controller-display')
+    rangeInputDisplay.innerHTML=currentInputVale
+    manageShopWindowWidth(currentInputVale)
+  }
+
+  function manageShopWindowWidth(currentInputVale){
+    const mainElement = document.querySelector('.wrapper__Main')
+    const shopWrapper = document.querySelector('.wrapper__Shop')
+    const cartWrapper = document.querySelector('.wrapper__Cart')
+    const CART_WIDTH = 400
+    const MAIN_WIDTH = mainElement.offsetWidth
+    const INPUT_PERCENTAGE = currentInputVale/100
+    shopWrapper.style.width = `${(MAIN_WIDTH - CART_WIDTH) * (INPUT_PERCENTAGE)}px`
+    cartWrapper.style.width = `${(MAIN_WIDTH) - (MAIN_WIDTH - CART_WIDTH)*(INPUT_PERCENTAGE)}px`
+  }
 
     async function fetchProducts(){
     try{      
