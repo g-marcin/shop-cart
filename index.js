@@ -66,17 +66,45 @@ if(IS_BROWSER_ENVIRONMENT){
     getDataFromLocalStorage();
     renderShop();
     renderCart();
-    // renderMain()
-  
+
     const rangeInput = document.querySelector('.windows-size-controller')
     rangeInput.addEventListener('input', observeInputValue)
    
+    const shopContent = document.querySelector('.content__Shop')
+shopContent.addEventListener('scroll', onScroll)
 
   function observeInputValue(event){
     const currentInputVale = event.target.value
     const rangeInputDisplay = document.querySelector('.windows-size-controller-display')
     rangeInputDisplay.innerHTML=currentInputVale
     manageShopWindowWidth(currentInputVale)
+  }
+
+  async function onScroll(e) {
+    const { scrollTop, scrollHeight, clientHeight } = shopContent;
+    if (scrollTop + clientHeight >= scrollHeight) {
+      // Scroll has reached the bottom
+      console.log('Reached the bottom, fetching more products...');
+      renderShop()
+    }
+  }
+
+  async function fetchMoreProducts () {
+    try{      
+      const response = await fetch(`${BASE_URL}?limit=${FETCH_PRODUCTS_LIMIT}&skip=${10+globalStateObject._shopScrollCount*10}`);
+      const jsonData = await response.json();
+      const { products } = jsonData;
+
+      globalStateObject._cart = [...globalStateObject._cart, ...products]
+      console.log(globalStateObject._cart);
+      console.log(globalStateObject._shopScrollCount);
+      
+      return products
+      
+    }catch(e){
+      console.error('fetchMoreProducts() method error')
+      return []
+    }
   }
 
   function manageShopWindowWidth(currentInputVale){
@@ -110,7 +138,12 @@ if(IS_BROWSER_ENVIRONMENT){
 
     async function renderShop() {
       try{
-        const products = await fetchProducts()
+        let products
+        if(globalStateObject._shopScrollCount===0){
+          products = await fetchProducts()
+        }{
+          products=fetchedProductsMap.values
+        }
         products.map((fetchedProduct) => {
         if(!fetchedProduct.brand){
             fetchedProduct.brand = "common products";

@@ -4,6 +4,7 @@ export const globalStateObject = {
   _renderedProducts: [],
   _checkedBrands: [],
   _grandTotal: 0,
+  _shopScrollCount:0,
   // TODO: _fetchedProductsMap : new Map()
   // TODO: brandTotal
   // TODO: grandTotal

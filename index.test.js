@@ -9,6 +9,7 @@ import {
 const html = fs.readFileSync(path.resolve(__dirname, "./index.html"), "utf8");
 
 import { increaseProductCount, decreaseProductCount, checkTruthyValues } from "./helpers.js"
+import { addToCartHandler } from "./index.js"
 import response from "./mocks/response.json"
 import { getProductCardHTMLMarkup } from "./markup/productCard.js";
 
@@ -101,7 +102,25 @@ describe("index.html-core", () => {
     expect(controller_display.value).toBe("1");
 
   });
-});
+
+  it('adds product to cart on add to cart button click', async ()=>{
+    window.increaseProductCount = increaseProductCount
+    window.addToCartHandler = addToCartHandler
+    const shop_content = screen.getByTestId('shop_content')
+    const singleProduct = getProductCardHTMLMarkup(response.products[0])
+    shop_content.appendChild(singleProduct)
+    
+
+
+    const counter_plus = screen.getByTestId("shop_product_plus");
+    const add_to_cart = screen.getByTestId('add_to_cart')
+
+    fireEvent.click(counter_plus);
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    fireEvent.click(add_to_cart);
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+  );
 
 
 describe("index.html-helpers", () => {
@@ -111,4 +130,35 @@ describe("index.html-helpers", () => {
     expect(checkTruthyValues(TRUTHY_VALUES)).toBeTruthy();
     expect(checkTruthyValues(FALSY_VALUES)).toBeFalsy();
   });
-});
+
+  it('remove all cart products on clear button click', ()=>{
+      const cartMarkup = `
+      <div class="wrapper__Cart">
+          <div class="header__Cart">
+            <div class="logo__Cart">
+              <i class="fa-solid fa-cart-shopping"></i>
+              <h2>THE CART</h2> 
+            </div>
+            
+            <button class="cart__reset" onclick="resetCart()" >clear</button>
+          </div>
+          <div class="content__Cart" data-testid="content-cart"></div>
+          <div class="wrapper__Grand__Total">
+            <label for="">
+              Grand Total:
+              <input
+                class="grand__Total"
+                disabled
+                type="number"
+                value="0"
+                title="grand Total"
+                data-testid="grand_total_input"
+              />
+            </label>
+            <span>$</span>
+          </div>
+        </div>
+      `  
+  })
+})})
+

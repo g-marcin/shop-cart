@@ -2,7 +2,7 @@ const PAGE_LOAD = "load";
 const PAGE_UNLOAD = "unload";
 const UNHANDLED_REJECTION = "unhandledrejection";
 const BASE_URL = "https://dummyjson.com/products";
-const FETCH_PRODUCTS_LIMIT = 50;
+const FETCH_PRODUCTS_LIMIT = 8;
 const IS_NODE_ENVIRONMENT = typeof module !== "undefined";
 const IS_BROWSER_ENVIRONMENT = typeof module === "undefined";
 
