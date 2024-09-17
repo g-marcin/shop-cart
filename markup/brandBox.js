@@ -1,8 +1,8 @@
 export function getBrandBoxHTMLMarkup(props) {
-    const { brand, brandName, brandTotal, isChecked } = props;
-  
-    const brandBox = document.createElement("div");
-    brandBox.className = `wrapper__Manufacturer wrapper__Manufacturer__${brand}`;
+    const { brand, brandName, brandTotal, isChecked } = props
+
+    const brandBox = document.createElement('div')
+    brandBox.className = `wrapper__Manufacturer wrapper__Manufacturer__${brand}`
     brandBox.innerHTML = ` 
       <div class="manufacturer__Header">
           <input type="checkbox" class="checkbox__Manufacturer__${brand}" onclick="brandCheckboxHandler('${brand}')" ${isChecked} data-testid="brand_checkbox"/>
@@ -16,6 +16,6 @@ export function getBrandBoxHTMLMarkup(props) {
           Total:<input class="total__Manufacturer total__Manufacturer__${brand}" value=${brandTotal} data-testid="brand_total_input" disabled  />
           $
       </div>
-      `;
-    return brandBox;
+      `
+    return brandBox
 }

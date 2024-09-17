@@ -1,68 +1,113 @@
-<html><head></head><body>
+<html>
+    <head></head>
+    <body>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <script src="./widgets/footer.js"></script>
+        <script src="./widgets/header.js"></script>
+        <script type="module" src="index.js"></script>
+        <script
+            src="https://kit.fontawesome.com/bf364dafc4.js"
+            crossorigin="anonymous"
+        ></script>
+        <link rel="stylesheet" href="style.css" />
+        <link rel="stylesheet" href="fonts.css" />
+        <link rel="stylesheet" href="baseLine.css" />
 
-  
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="./widgets/footer.js"></script>
-    <script src="./widgets/header.js"></script>
-    <script type="module" src="index.js"></script>
-    <script src="https://kit.fontawesome.com/bf364dafc4.js" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="fonts.css">
-    <link rel="stylesheet" href="baseLine.css">
-  
-  
-    <main>
-      <div class="wrapper__Main">
-        <div class="wrapper__Shop">
-          <div class="header__Shop">
-            <i class="fa-solid fa-shop"></i> THE SHOP
-          </div>
-          <div class="content__Shop" data-testid="shop_content"><div class="wrapper__Product">
-<div class="flex product__info">
-  <img class="product__Thumbnail" src="https://cdn.dummyjson.com/products/images/beauty/Essence%20Mascara%20Lash%20Princess/1.png" alt="product_Thumbnail">
-  <div class="flex column ">
-    <h4 class="product__Title__1">Essence Mascara Lash Princess</h4>
-    <h3 class="product__Brand__1">Essence</h3>
-  </div>
-</div>
-<div class="product__Description">The Essence Mascara Lash Princess is a popular mascara known for its volumizing and lengthening effects. Achieve dramatic lashes with this long-lasting and cruelty-free formula.</div>
-<div class="product__Controller">
-  <div class="flex product__Price ">
-    <div class=" product__Price__1 ">
-      9.99
-    </div>
-    <span class="dollar-sign">$</span>    
-  </div>
-    <div class="flex">
-      <div class="product__Counter">
-        <input type="number" disabled="" class="controller__Display  controller__Display__1" value="0" data-testid="shop_product_display">
-        <div class="controller__CountButtons">
-          <button class="counter__Product" data-testid="shop_product_plus" onclick="increaseProductCount(event)">+</button>
-          <button class="counter__Product" data-testid="shop_product_minus" onclick="decreaseProductCount(event)">-</button>
-        </div>
-    </div>  
-      <button class="button__AddToCart" data-testid="add_to_cart" onclick="addToCartHandler(event,1)"><i class="fa-solid fa-cart-plus fa-xl"></i></button>
-  </div>
-</div>
-</div></div>
-        </div>
-        <div class="wrapper__Cart">
-          <div class="header__Cart">
-            <i class="fa-solid fa-cart-shopping"></i> THE CART
-          </div>
-          <div class="content__Cart" data-testid="content-cart"></div>
-          <div class="wrapper__Grand__Total">
-            <label for="">
-              Grand Total:
-              <input class="grand__Total" disabled="" type="number" value="0" title="grand Total" data-testid="grand_total_input">
-            </label>
-            <span>$</span>
-          </div>
-        </div>
-      </div>
-    </main>
-  
-
-</body></html>
+        <main>
+            <div class="wrapper__Main">
+                <div class="wrapper__Shop">
+                    <div class="header__Shop">
+                        <i class="fa-solid fa-shop"></i> THE SHOP
+                    </div>
+                    <div class="content__Shop" data-testid="shop_content">
+                        <div class="wrapper__Product">
+                            <div class="flex product__info">
+                                <img
+                                    class="product__Thumbnail"
+                                    src="https://cdn.dummyjson.com/products/images/beauty/Essence%20Mascara%20Lash%20Princess/1.png"
+                                    alt="product_Thumbnail"
+                                />
+                                <div class="flex column">
+                                    <h4 class="product__Title__1">
+                                        Essence Mascara Lash Princess
+                                    </h4>
+                                    <h3 class="product__Brand__1">Essence</h3>
+                                </div>
+                            </div>
+                            <div class="product__Description">
+                                The Essence Mascara Lash Princess is a popular
+                                mascara known for its volumizing and lengthening
+                                effects. Achieve dramatic lashes with this
+                                long-lasting and cruelty-free formula.
+                            </div>
+                            <div class="product__Controller">
+                                <div class="flex product__Price">
+                                    <div class="product__Price__1">9.99</div>
+                                    <span class="dollar-sign">$</span>
+                                </div>
+                                <div class="flex">
+                                    <div class="product__Counter">
+                                        <input
+                                            type="number"
+                                            disabled=""
+                                            class="controller__Display controller__Display__1"
+                                            value="0"
+                                            data-testid="shop_product_display"
+                                        />
+                                        <div class="controller__CountButtons">
+                                            <button
+                                                class="counter__Product"
+                                                data-testid="shop_product_plus"
+                                                onclick="increaseProductCount(event)"
+                                            >
+                                                +
+                                            </button>
+                                            <button
+                                                class="counter__Product"
+                                                data-testid="shop_product_minus"
+                                                onclick="decreaseProductCount(event)"
+                                            >
+                                                -
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <button
+                                        class="button__AddToCart"
+                                        data-testid="add_to_cart"
+                                        onclick="addToCartHandler(event,1)"
+                                    >
+                                        <i
+                                            class="fa-solid fa-cart-plus fa-xl"
+                                        ></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="wrapper__Cart">
+                    <div class="header__Cart">
+                        <i class="fa-solid fa-cart-shopping"></i> THE CART
+                    </div>
+                    <div class="content__Cart" data-testid="content-cart"></div>
+                    <div class="wrapper__Grand__Total">
+                        <label for="">
+                            Grand Total:
+                            <input
+                                class="grand__Total"
+                                disabled=""
+                                type="number"
+                                value="0"
+                                title="grand Total"
+                                data-testid="grand_total_input"
+                            />
+                        </label>
+                        <span>$</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </body>
+</html>

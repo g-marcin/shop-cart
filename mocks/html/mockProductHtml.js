@@ -22,4 +22,4 @@ const mockProductHtml = `
       </div>
       </div>
       </div>
-`;
+`
