@@ -1,10 +1,10 @@
 {
-  "product": {
-    "id": 1,
-    "price": 9.99,
-    "title": "Essence Mascara Lash Princess",
-    "brand": "Essence"
-  },
-  "isChecked": true,
-  "count": 1
+    "product": {
+        "id": 1,
+        "price": 9.99,
+        "title": "Essence Mascara Lash Princess",
+        "brand": "Essence"
+    },
+    "isChecked": true,
+    "count": 1
 }

@@ -1,7 +1,7 @@
-window.addEventListener("load", () => {
-  const header = document.createElement("header");
-  header.className = "header";
-  header.innerHTML = `
+window.addEventListener('load', () => {
+    const header = document.createElement('header')
+    header.className = 'header'
+    header.innerHTML = `
        <a class="logo" href="/" title="logo" aria-label="link to homepage">Shop-Cart</a>
        <div class="wrapper__Navbar">
          <div class="wrapper__Links">
@@ -28,7 +28,7 @@ window.addEventListener("load", () => {
        >
          <i class="fa-solid fa-bars fa-xl"></i>
        </button>
-     `;
+     `
 
-  document.body.insertBefore(header, document.body.firstChild);
-});
+    document.body.insertBefore(header, document.body.firstChild)
+})

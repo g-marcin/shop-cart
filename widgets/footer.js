@@ -1,8 +1,8 @@
 //footer
-window.addEventListener("load", () => {
-  const footer = document.createElement("footer");
-  footer.className = "footer";
-  footer.innerHTML = `
+window.addEventListener('load', () => {
+    const footer = document.createElement('footer')
+    footer.className = 'footer'
+    footer.innerHTML = `
         
           <a
             class="wrapper__Footer__Item Inter opaque"
@@ -41,7 +41,7 @@ window.addEventListener("load", () => {
               ><i class="fa-brands fa-solid fa-twitter fa-lg"></i
             ></a>
           </div>
-    `;
+    `
 
-  document.body.appendChild(footer);
-});
+    document.body.appendChild(footer)
+})
