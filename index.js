@@ -25,8 +25,6 @@ const {
     UNHANDLED_REJECTION,
     BASE_URL,
     FETCH_PRODUCTS_LIMIT,
-    IS_BROWSER_ENVIRONMENT,
-    IS_NODE_ENVIRONMENT,
 } = constants
 
 import {
@@ -40,109 +38,93 @@ import {
     getManufacturerProductHTMLMarkup,
 } from './markup/index.js'
 
-if (IS_NODE_ENVIRONMENT) {
-    function checkTruthyValues(arr) {
-        return arr.every((element) => Boolean(element) === true)
+window.addEventListener(PAGE_LOAD, () => {
+    window.globalStateObject = globalStateObject
+    window.addToCartHandler = addToCartHandler
+    window.deleteProductHandler = deleteProductHandler
+    window.getGrandTotal = getGrandTotal
+    window.getBrandTotal = getBrandTotal
+    window.increaseProductCount = increaseProductCount
+    window.decreaseProductCount = decreaseProductCount
+    window.increaseCartCount = increaseCartCount
+    window.decreaseCartCount = decreaseCartCount
+    window.brandCheckboxHandler = brandCheckboxHandler
+    window.productCheckboxHandler = productCheckboxHandler
+    window.getDataFromLocalStorage = getDataFromLocalStorage
+    window.getProductById = getProductById
+    window.renderCart = renderCart
+    window.resetCart = resetCart
+
+    getDataFromLocalStorage()
+    renderShop()
+    renderCart()
+    // renderMain()
+
+    const rangeInput = document.querySelector('.windows-size-controller')
+    rangeInput.addEventListener('input', observeInputValue)
+
+    function observeInputValue(event) {
+        const currentInputVale = event.target.value
+        const rangeInputDisplay = document.querySelector(
+            '.windows-size-controller-display'
+        )
+        rangeInputDisplay.innerHTML = currentInputVale
+        manageShopWindowWidth(currentInputVale)
     }
-    module.exports = {
-        checkTruthyValues,
-        mockProduct,
-        increaseProductCount,
-        addToCartHandler,
+
+    function manageShopWindowWidth(currentInputVale) {
+        const mainElement = document.querySelector('.wrapper__Main')
+        const shopWrapper = document.querySelector('.wrapper__Shop')
+        const cartWrapper = document.querySelector('.wrapper__Cart')
+        const CART_WIDTH = 400
+
+        const MIN_SHOP_WIDTH = 440
+        const MAIN_WIDTH = mainElement.offsetWidth
+        const INPUT_PERCENTAGE = currentInputVale / 100
+        if ((MAIN_WIDTH - CART_WIDTH) * INPUT_PERCENTAGE <= MIN_SHOP_WIDTH) {
+            return
+        }
+
+        shopWrapper.style.width = `${(MAIN_WIDTH - CART_WIDTH) * INPUT_PERCENTAGE}px`
+        cartWrapper.style.width = `${MAIN_WIDTH - (MAIN_WIDTH - CART_WIDTH) * INPUT_PERCENTAGE}px`
     }
-}
 
-if (IS_BROWSER_ENVIRONMENT) {
-    window.addEventListener(PAGE_LOAD, () => {
-        window.globalStateObject = globalStateObject
-        window.addToCartHandler = addToCartHandler
-        window.deleteProductHandler = deleteProductHandler
-        window.getGrandTotal = getGrandTotal
-        window.getBrandTotal = getBrandTotal
-        window.increaseProductCount = increaseProductCount
-        window.decreaseProductCount = decreaseProductCount
-        window.increaseCartCount = increaseCartCount
-        window.decreaseCartCount = decreaseCartCount
-        window.brandCheckboxHandler = brandCheckboxHandler
-        window.productCheckboxHandler = productCheckboxHandler
-        window.getDataFromLocalStorage = getDataFromLocalStorage
-        window.getProductById = getProductById
-        window.renderCart = renderCart
-        window.resetCart = resetCart
-
-        getDataFromLocalStorage()
-        renderShop()
-        renderCart()
-        // renderMain()
-
-        const rangeInput = document.querySelector('.windows-size-controller')
-        rangeInput.addEventListener('input', observeInputValue)
-
-        function observeInputValue(event) {
-            const currentInputVale = event.target.value
-            const rangeInputDisplay = document.querySelector(
-                '.windows-size-controller-display'
+    async function fetchProducts() {
+        try {
+            const response = await fetch(
+                `${BASE_URL}?limit=${FETCH_PRODUCTS_LIMIT}`
             )
-            rangeInputDisplay.innerHTML = currentInputVale
-            manageShopWindowWidth(currentInputVale)
+            const jsonData = await response.json()
+            const { products } = jsonData
+            return products
+        } catch (e) {
+            console.error('fetchProducts() method error')
+            return []
         }
+    }
 
-        function manageShopWindowWidth(currentInputVale) {
-            const mainElement = document.querySelector('.wrapper__Main')
-            const shopWrapper = document.querySelector('.wrapper__Shop')
-            const cartWrapper = document.querySelector('.wrapper__Cart')
-            const CART_WIDTH = 400
-
-            const MIN_SHOP_WIDTH = 440
-            const MAIN_WIDTH = mainElement.offsetWidth
-            const INPUT_PERCENTAGE = currentInputVale / 100
-            if (
-                (MAIN_WIDTH - CART_WIDTH) * INPUT_PERCENTAGE <=
-                MIN_SHOP_WIDTH
-            ) {
-                return
-            }
-
-            shopWrapper.style.width = `${(MAIN_WIDTH - CART_WIDTH) * INPUT_PERCENTAGE}px`
-            cartWrapper.style.width = `${MAIN_WIDTH - (MAIN_WIDTH - CART_WIDTH) * INPUT_PERCENTAGE}px`
-        }
-
-        async function fetchProducts() {
-            try {
-                const response = await fetch(
-                    `${BASE_URL}?limit=${FETCH_PRODUCTS_LIMIT}`
-                )
-                const jsonData = await response.json()
-                const { products } = jsonData
-                return products
-            } catch (e) {
-                console.error('fetchProducts() method error')
-                return []
-            }
-        }
-
-        async function renderShop() {
-            try {
-                const products = await fetchProducts()
-                products.map((fetchedProduct) => {
-                    if (!fetchedProduct.brand) {
-                        fetchedProduct.brand = 'common products'
-                    }
-                    fetchedProductsMap.set(fetchedProduct.id, fetchedProduct)
-                    renderFetchedProduct(fetchedProduct, fetchedProduct.id)
-                })
-                function renderFetchedProduct(fetchedProduct) {
-                    const shopContent = document.querySelector('.content__Shop')
-                    const productHTMLMarkup =
-                        getProductCardHTMLMarkup(fetchedProduct)
-                    shopContent.appendChild(productHTMLMarkup)
+    async function renderShop() {
+        try {
+            const products = await fetchProducts()
+            products.map((fetchedProduct) => {
+                if (!fetchedProduct.brand) {
+                    fetchedProduct.brand = 'common products'
                 }
-            } catch (e) {
-                console.error(e)
+                fetchedProductsMap.set(fetchedProduct.id, fetchedProduct)
+                renderFetchedProduct(fetchedProduct, fetchedProduct.id)
+            })
+            function renderFetchedProduct(fetchedProduct) {
+                const shopContent = document.querySelector('.content__Shop')
+                const productHTMLMarkup =
+                    getProductCardHTMLMarkup(fetchedProduct)
+                shopContent.appendChild(productHTMLMarkup)
             }
+        } catch (e) {
+            console.error(e)
         }
-    })
-}
+    }
+})
+
 window.addEventListener(PAGE_UNLOAD, (e) => {
     saveDataToLocalStorage()
 })
