@@ -2,3 +2,5 @@ node_modules
 utils.js
 .vscode/*
 brudnopis
+.parcel-cache
+dist/
