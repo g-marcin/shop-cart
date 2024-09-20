@@ -1,17 +1,13 @@
-global.fetch = require('node-fetch')
-const fs = require('fs')
-const path = require('path')
-
 import { screen, fireEvent } from '@testing-library/dom'
-const html = fs.readFileSync(path.resolve(__dirname, './index.html'), 'utf8')
 
-import {
-    increaseProductCount,
-    decreaseProductCount,
-    checkTruthyValues,
-} from './helpers.js'
+import { helpers } from './helpers.js'
 import response from './mocks/response.json'
 import { getProductCardHTMLMarkup } from './markup/productCard.js'
+import { beforeEach, it, expect, describe } from 'vitest'
+import fs from 'fs'
+import path from 'path'
+const html = fs.readFileSync(path.resolve(__dirname, './index.html'), 'utf8')
+const { increaseProductCount, decreaseProductCount } = helpers
 
 beforeEach(() => {
     document.body.innerHTML = html
@@ -64,23 +60,22 @@ describe('index.html-core', () => {
     })
 
     it('checks shop_product counter plus button', async () => {
-        window.increaseProductCount = increaseProductCount
         const shop_content = screen.getByTestId('shop_content')
         const singleProduct = getProductCardHTMLMarkup(response.products[0])
         shop_content.appendChild(singleProduct)
 
         const counter_plus = screen.getByTestId('shop_product_plus')
         const controller_display = screen.getByTestId('shop_product_display')
+        counter_plus.onclick = increaseProductCount
 
         fireEvent.click(counter_plus)
+
         await new Promise((resolve) => setTimeout(resolve, 500))
 
         expect(controller_display.value).toBe('1')
     })
 
     it('checks shop_product counter minus button', async () => {
-        window.increaseProductCount = increaseProductCount
-        window.decreaseProductCount = decreaseProductCount
         const shop_content = screen.getByTestId('shop_content')
         const singleProduct = getProductCardHTMLMarkup(response.products[0])
         shop_content.appendChild(singleProduct)
@@ -88,6 +83,9 @@ describe('index.html-core', () => {
         const counter_plus = screen.getByTestId('shop_product_plus')
         const counter_minus = screen.getByTestId('shop_product_minus')
         const controller_display = screen.getByTestId('shop_product_display')
+
+        counter_plus.onclick = increaseProductCount
+        counter_minus.onclick = decreaseProductCount
 
         fireEvent.click(counter_plus)
         await new Promise((resolve) => setTimeout(resolve, 500))
