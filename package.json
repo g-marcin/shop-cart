@@ -6,7 +6,9 @@
     "type": "module",
     "scripts": {
         "test": "vitest run",
+        "test:playwright": "playwright test",
         "serve:watch": "nodemon --watch . --exec \"http-server\"",
+        "serve:parcel": "npx parcel index.html",
         "prepare": "husky",
         "prettier": "prettier $(git diff --cached --name-only --diff-filter=ACMR | sed 's| |\\ |g') --write --ignore-unknown",
         "lint": "npx eslint ."
@@ -17,6 +19,7 @@
     "devDependencies": {
         "@eslint/js": "^9.10.0",
         "@parcel/babel-preset-env": "^2.12.0",
+        "@playwright/test": "^1.47.1",
         "@testing-library/dom": "^10.4.0",
         "babel-jest": "^29.7.0",
         "eslint": "^9.10.0",
@@ -29,6 +32,7 @@
         "node-fetch": "^2.7.0",
         "nodemon": "^3.1.1",
         "parcel": "^2.12.0",
+        "playwright": "^1.47.1",
         "puppeteer": "^22.14.0",
         "vitest": "^2.1.1"
     }

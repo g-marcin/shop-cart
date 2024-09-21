@@ -96,7 +96,7 @@ export function decreaseProductCount(e) {
     const counterDisplay = e.target.parentElement.parentElement.querySelector(
         '.controller__Display'
     )
-    Number(counterDisplay.value) >= 2 && counterDisplay.value--
+    Number(counterDisplay.value) >= 1 && counterDisplay.value--
 }
 
 function renderGrandTotal(grandTotalValue) {
