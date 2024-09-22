@@ -1,4 +1,4 @@
-import { globalStateObject } from './state'
+import { globalStateObject } from './state.js'
 
 export function getDataFromLocalStorage() {
     try {

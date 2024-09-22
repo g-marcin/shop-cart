@@ -1,5 +1,5 @@
-import { globalStateObject } from './state.js'
 import { renderCart } from './index.js'
+import { globalStateObject } from './state.js'
 
 export function getBrandSet() {
     const brandSet = new Set()
