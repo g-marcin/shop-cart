@@ -1,4 +1,4 @@
-const mockProductHtml = `
+export const mockProductHtml = `
     <div class="wrapper__Product">
     <div class="flex product__info">
     <img class="product__Thumbnail" src="https://cdn.dummyjson.com/products/images/beauty/Essence%20Mascara%20Lash%20Princess/1.png" alt="product_Thumbnail">

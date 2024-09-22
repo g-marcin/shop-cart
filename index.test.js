@@ -1,13 +1,17 @@
 import { screen, fireEvent } from '@testing-library/dom'
 
-import { helpers } from './helpers.js'
+import {
+    checkTruthyValues,
+    increaseProductCount,
+    decreaseProductCount,
+} from './helpers.js'
+
 import response from './mocks/response.json'
 import { getProductCardHTMLMarkup } from './markup/productCard.js'
 import { beforeEach, it, expect, describe } from 'vitest'
 import fs from 'fs'
 import path from 'path'
 const html = fs.readFileSync(path.resolve(__dirname, './index.html'), 'utf8')
-const { increaseProductCount, decreaseProductCount } = helpers
 
 beforeEach(() => {
     document.body.innerHTML = html

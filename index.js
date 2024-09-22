@@ -1,6 +1,4 @@
-import { helpers } from './helpers.js'
-const {
-    checkTruthyValues,
+import {
     getBrandSet,
     getBrandTotal,
     getGrandTotal,
@@ -16,7 +14,9 @@ const {
     deleteProductHandler,
     getProductById,
     resetCart,
-} = helpers
+} from './helpers.js'
+
+import { checkTruthyValues } from './helpers.js'
 
 import { constants } from './constants.js'
 const {
@@ -99,6 +99,7 @@ window.addEventListener(PAGE_LOAD, () => {
             return products
         } catch (e) {
             console.error('fetchProducts() method error')
+            console.error(e)
             return []
         }
     }
@@ -125,7 +126,7 @@ window.addEventListener(PAGE_LOAD, () => {
     }
 })
 
-window.addEventListener(PAGE_UNLOAD, (e) => {
+window.addEventListener(PAGE_UNLOAD, () => {
     saveDataToLocalStorage()
 })
 window.addEventListener(UNHANDLED_REJECTION, (e) => {
@@ -176,7 +177,7 @@ function addToCartHandler(e, id) {
     }
     function updateExistingBrandGroup() {
         let newCartProducts = [...globalStateObject.cart]
-        newCartProducts = newCartProducts.map((brandGroup) => {
+        newCartProducts.map((brandGroup) => {
             if (brandGroup.brand === brand) {
                 brandGroup.brandProducts.push({
                     product: {
@@ -195,7 +196,7 @@ function addToCartHandler(e, id) {
         let newCartProducts = [...globalStateObject.cart]
         newCartProducts = newCartProducts.map((brandGroup) => {
             let newBrandProducts = [...brandGroup.brandProducts]
-            newBrandProducts = newBrandProducts.map((brandProduct) => {
+            newBrandProducts.map((brandProduct) => {
                 if (brandProduct.product.id === id) {
                     brandProduct.count += count
                 }
@@ -253,7 +254,7 @@ function brandCheckboxHandler(brand) {
 }
 
 //Renderers:
-function renderCart() {
+export function renderCart() {
     renderBrandBoxes()
     renderCartProducts()
     const grandTotal = getGrandTotal()

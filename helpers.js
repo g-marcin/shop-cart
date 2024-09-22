@@ -1,30 +1,14 @@
-export const helpers = {
-    checkTruthyValues,
-    getBrandSet,
-    getBrandTotal,
-    getGrandTotal,
-    getIsBrandCheckedSet,
-    readProductCount,
-    trimSpecialCharacters,
-    trimWhiteSpace,
-    increaseProductCount,
-    decreaseProductCount,
-    renderGrandTotal,
-    deleteProductHandler,
-    increaseCartCount,
-    decreaseCartCount,
-    getProductById,
-    resetCart,
-}
+import { globalStateObject } from './state.js'
+import { renderCart } from './index.js'
 
-function getBrandSet() {
+export function getBrandSet() {
     const brandSet = new Set()
     globalStateObject.cart.forEach((brandGroup) => {
         brandSet.add(brandGroup.brand)
     })
     return brandSet
 }
-function getBrandTotal(brand) {
+export function getBrandTotal(brand) {
     let brandTotalArray = []
     let brandTotal = 0
     globalStateObject.cart.forEach((brandGroup) => {
@@ -47,7 +31,7 @@ function getBrandTotal(brand) {
     }
     return brandTotal
 }
-function getGrandTotal() {
+export function getGrandTotal() {
     const brandTotalArray = []
 
     globalStateObject._cart.forEach((brandGroup) => {
@@ -61,7 +45,7 @@ function getGrandTotal() {
     )
     return grandTotal
 }
-function getIsBrandCheckedSet() {
+export function getIsBrandCheckedSet() {
     const isBrandCheckedSet = new Set()
     globalStateObject.cart.forEach((brandGroup) => {
         if (brandGroup.isChecked === true) {
@@ -70,16 +54,16 @@ function getIsBrandCheckedSet() {
     })
     return isBrandCheckedSet
 }
-function readProductCount(id) {
+export function readProductCount(id) {
     const count = Number(
         document.querySelector(`.controller__Display__${id}`).value
     )
     return { count: count }
 }
-function trimWhiteSpace(string) {
+export function trimWhiteSpace(string) {
     return string.replace(/\s/g, '')
 }
-function trimSpecialCharacters(string) {
+export function trimSpecialCharacters(string) {
     return string.replace(/^a-zA-Z0-9 ]/g, '').replace(/[&-']/g, '')
 }
 export function checkTruthyValues(arr) {
@@ -99,7 +83,7 @@ export function decreaseProductCount(e) {
     Number(counterDisplay.value) >= 1 && counterDisplay.value--
 }
 
-function renderGrandTotal(grandTotalValue) {
+export function renderGrandTotal(grandTotalValue) {
     console.log('renderGrandTotal', grandTotalValue)
     const wrapperCart = document.querySelector('.wrapper__Cart')
 
@@ -114,7 +98,7 @@ function renderGrandTotal(grandTotalValue) {
         </label>$</span>`
     wrapperCart.appendChild(newWrapperGrandTotal)
 }
-function decreaseCartCount(e, id) {
+export function decreaseCartCount(e, id) {
     const counterDisplay = e.target.parentElement.parentElement.querySelector(
         '.controller__Display'
     )
@@ -123,7 +107,7 @@ function decreaseCartCount(e, id) {
     }
     globalStateObject._cart.forEach((outerProduct) => {
         let newBrandProducts = [...outerProduct.brandProducts]
-        newBrandProducts = newBrandProducts.map((brandProduct) => {
+        newBrandProducts.map((brandProduct) => {
             if (brandProduct.product.id === id) {
                 brandProduct.count--
             }
@@ -133,7 +117,7 @@ function decreaseCartCount(e, id) {
     })
     renderCart()
 }
-function increaseCartCount(e, id) {
+export function increaseCartCount(e, id) {
     globalStateObject._cart.forEach((brandGroup) => {
         brandGroup.brandProducts.map((brandProduct) => {
             if (brandProduct.product.id === id) {
@@ -145,7 +129,7 @@ function increaseCartCount(e, id) {
     })
     renderCart()
 }
-function deleteProductHandler(id) {
+export function deleteProductHandler(id) {
     globalStateObject._cart = globalStateObject._cart
         .map((brandGroup) => {
             brandGroup.brandProducts = brandGroup.brandProducts.filter(
@@ -156,7 +140,7 @@ function deleteProductHandler(id) {
         .filter((brandGroup) => brandGroup.brandProducts.length !== 0)
     renderCart()
 }
-function getProductById(id) {
+export function getProductById(id) {
     let allProducts = []
     globalStateObject.cart.forEach((extendedProduct) => {
         allProducts = allProducts.concat(extendedProduct.brandProducts)
@@ -167,7 +151,27 @@ function getProductById(id) {
     return productId
 }
 
-function resetCart() {
+export function resetCart() {
     globalStateObject.reset()
     renderCart()
 }
+
+const helpers = {
+    checkTruthyValues,
+    getBrandSet,
+    getBrandTotal,
+    getGrandTotal,
+    getIsBrandCheckedSet,
+    readProductCount,
+    trimSpecialCharacters,
+    trimWhiteSpace,
+    increaseProductCount,
+    decreaseProductCount,
+    renderGrandTotal,
+    deleteProductHandler,
+    increaseCartCount,
+    decreaseCartCount,
+    getProductById,
+    resetCart,
+}
+export default helpers

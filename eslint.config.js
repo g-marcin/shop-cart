@@ -1,6 +1,6 @@
 import globals from 'globals'
 import pluginJs from '@eslint/js'
-import pluginJest from 'eslint-plugin-jest'
+import pluginVitest from 'eslint-plugin-vitest'
 
 export default [
     {
@@ -8,17 +8,21 @@ export default [
             globals: {
                 ...globals.browser,
                 ...globals.node,
-                ...globals.jest,
+                ...globals.vitest,
             },
         },
     },
     pluginJs.configs.recommended,
     {
         plugins: {
-            jest: pluginJest,
+            vitest: pluginVitest,
         },
         rules: {
-            ...pluginJest.configs.recommended.rules,
+            ...pluginVitest.configs.recommended.rules,
+            ...pluginJs.configs.recommended.rules,
         },
+    },
+    {
+        ignores: ['dist', 'node_modules'],
     },
 ]
