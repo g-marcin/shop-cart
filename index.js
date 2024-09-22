@@ -106,7 +106,10 @@ window.addEventListener(PAGE_LOAD, () => {
 
     async function renderShop() {
         try {
+            await delay(1500)
             const products = await fetchProducts()
+            const shopContent = document.querySelector('.content__Shop')
+            shopContent.innerHTML = ''
             products.map((fetchedProduct) => {
                 if (!fetchedProduct.brand) {
                     fetchedProduct.brand = 'common products'
@@ -333,4 +336,8 @@ export function renderCart() {
             return brandGroup
         })
     }
+}
+
+function delay(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms))
 }
