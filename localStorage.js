@@ -1,3 +1,5 @@
+import { globalStateObject } from './state'
+
 export function getDataFromLocalStorage() {
     try {
         const cartProductsJSON = window.localStorage.getItem('cartProductsJSON')
