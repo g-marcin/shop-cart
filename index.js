@@ -58,7 +58,6 @@ window.addEventListener(PAGE_LOAD, () => {
     getDataFromLocalStorage()
     renderShop()
     renderCart()
-    // renderMain()
 
     const rangeInput = document.querySelector('.windows-size-controller')
     rangeInput.addEventListener('input', observeInputValue)
@@ -91,10 +90,13 @@ window.addEventListener(PAGE_LOAD, () => {
 
     async function fetchProducts() {
         try {
-            const response = await fetch(
+            const dummyJSON_service_response = await fetch(
                 `${BASE_URL}?limit=${FETCH_PRODUCTS_LIMIT}`
             )
-            const jsonData = await response.json()
+            const jsonData = await dummyJSON_service_response.json()
+
+            // const mock_response = await fetch('http://localhost:3000/')
+            // const jsonData = await mock_response.json()
             const { products } = jsonData
             return products
         } catch (e) {
@@ -306,6 +308,9 @@ export function renderCart() {
                     product: { title, price, id },
                 } = brandProduct
 
+                const brandBox = document.querySelector(`.${brand}`)
+                const PRODUCT_NOT_RENDERED = !productSet.has(id)
+
                 const manufacturerProduct = getManufacturerProductHTMLMarkup({
                     id,
                     brand,
@@ -314,9 +319,6 @@ export function renderCart() {
                     count,
                     isChecked,
                 })
-
-                const brandBox = document.querySelector(`.${brand}`)
-                const PRODUCT_NOT_RENDERED = !productSet.has(id)
                 if (PRODUCT_NOT_RENDERED) {
                     brandBox.appendChild(manufacturerProduct)
                     productSet.add(id)

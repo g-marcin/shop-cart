@@ -1,11 +1,11 @@
-export function getManufacturerProductHTMLMarkup(props) {
+export function getManufacturerProductHTMLMarkup(props, animationClass = '') {
     const { id, brand, isChecked, title, price, count } = props
 
     const manufacturerProduct = document.createElement('div')
     manufacturerProduct.className = `wrapper__Product__Cart wrapper__Product__Cart__${id} `
     manufacturerProduct.innerHTML = `
   
-      <div class=product__Cart__Data >
+      <div class="product__Cart__Data ${animationClass}">
       <input type="checkbox" 
           class="product__Checkbox checkbox__Product__${id} checkbox__Product__${brand}"  
           onclick="productCheckboxHandler(${id})" 
