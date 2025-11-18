@@ -38,3 +38,8 @@ run playwright tests:
 ```bash
 yarn test:playwright
 ```
+
+codebase2turorial
+```bash
+https://code2tutorial.com/tutorial/d675682a-ad86-4138-942a-3997bba4835b/index.md
+```
