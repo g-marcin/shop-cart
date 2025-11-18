@@ -7,6 +7,10 @@ i practiced some unit and integration tests with vitest, playwright, pupeteer.
 shop-cart Preview:
 <a>https://shop-cart2.netlify.app/</a>
 
+codebase2turorial
+<a>https://code2tutorial.com/tutorial/d675682a-ad86-4138-942a-3997bba4835b/index.md
+/</a>
+
 node version: < 20
 
 run package install:
@@ -39,7 +43,3 @@ run playwright tests:
 yarn test:playwright
 ```
 
-codebase2turorial
-```bash
-https://code2tutorial.com/tutorial/d675682a-ad86-4138-942a-3997bba4835b/index.md
-```
